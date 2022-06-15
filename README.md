@@ -8,7 +8,7 @@ The topic we selected is seeing which types of maritime vessels use various wate
 
 ### Reason We Selected the Topic
 
-
+We believe this is an interesting topic with lots of practical applications. By viewing the type of traffic in specific waterways, we can see exactly what kinds of permits need to be given out for ships to travel. It can also help determine a need for new channels, as the machine learning model will show the traffic demands for ships in the future.
 
 ### Description of the Source of Data
 
