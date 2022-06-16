@@ -16,6 +16,11 @@ We believe this is an interesting topic with lots of practical applications. By 
 
 ### Questions We Hope to Answer
 
+There are two main questions we hope to answer with this project. They are:
+
+1) What are the different types of vessels are opperating in the selected area? As a followup to this, we are going to break down the percentage of each type of vessel that uses the various waterways in the area we're examining.
+
+2) What does the potential growth in traffic along the waterways look like in the next five years, and does can we use this to plan new waterways?
 
 
 ### What the Communication Protocols Are
