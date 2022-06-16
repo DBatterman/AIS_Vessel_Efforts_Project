@@ -14,10 +14,10 @@ We believe this is an interesting topic with lots of practical applications. By 
 
 We are taking our data directly from https://marinecadastre.gov/ais/. The data we are pulling from this site is called Automatic Information System (AIS), and it is a broadcast of the location and description of maritime vessels. This site in particular contains daily CSV files that contains daily activity in US waters. We are going to take data ranging back over the past five years, and perform an ETL on them to reduce them down to the following columns:
 
--MMSI
--DateTime
--Latitude
--Longitude
+-MMSI \n
+-DateTime \n
+-Latitude \n
+-Longitude \n
 -VesselType
 
 ### Questions We Hope to Answer
@@ -30,4 +30,6 @@ There are two main questions we hope to answer with this project. They are:
 
 
 ### What the Communication Protocols Are
+
+We plan to meet over Zoom during class on Tuesday and Thursday, we a catchup meeting on Sundays. There will also be daily communication through Slack as well as individual meetings when needed.
 
