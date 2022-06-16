@@ -8,17 +8,17 @@ The topic we selected is seeing which types of maritime vessels use various wate
 
 ### Reason We Selected the Topic
 
-We believe this is an interesting topic with lots of practical applications. By viewing the type of traffic in specific waterways, we can see exactly what kinds of permits need to be given out for ships to travel. It can also help determine a need for new channels, as the machine learning model will show the traffic demands for ships in the future.
+We believe this is an interesting topic with lots of practical applications. By viewing the type of traffic in specific waterways, we can see exactly what kinds of permits need to be given out for ships to travel. This will lead to a more streamlined process of distributing these permits, especially for event permits that people will need to acquire in advance. It can also help see if current channels are adequate to handle the flow and type of traffic in them, as well as determine a need for new channels. Lastly, it can help track enviromental impact for each channel, as one can calculate the emissions output from the amount of ships going through each channel.
 
 ### Description of the Source of Data
 
 We are taking our data directly from https://marinecadastre.gov/ais/. The data we are pulling from this site is called Automatic Information System (AIS), and it is a broadcast of the location and description of maritime vessels. This site in particular contains daily CSV files that contains daily activity in US waters. We are going to take data ranging back over the past five years, and perform an ETL on them to reduce them down to the following columns:
 
-*MMSI
-*DateTime
-*Latitude
-*Longitude
-*VesselType
+* MMSI
+* DateTime
+* Latitude
+* Longitude
+* VesselType
 
 ### Questions We Hope to Answer
 
