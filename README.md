@@ -12,7 +12,13 @@ We believe this is an interesting topic with lots of practical applications. By 
 
 ### Description of the Source of Data
 
+We are taking our data directly from https://marinecadastre.gov/ais/. The data we are pulling from this site is called Automatic Information System (AIS), and it is a broadcast of the location and description of maritime vessels. This site in particular contains daily CSV files that contains daily activity in US waters. We are going to take data ranging back over the past five years, and perform an ETL on them to reduce them down to the following columns:
 
+-MMSI
+-DateTime
+-Latitude
+-Longitude
+-VesselType
 
 ### Questions We Hope to Answer
 
