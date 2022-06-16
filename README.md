@@ -4,7 +4,7 @@
 
 ### What Topic We Selected
 
-The topic we selected is seeing which types of maritime vessels use various waterways. We hope to see current usage by filtering the data we obtain, and predict future usage using supervised machine learning. Our scope right now is the San Franscio Bay Area, but this code can be easily tweaked to examine other areas.
+The topic we selected is seeing which types of maritime vessels use various waterways. We hope to see current usage by filtering the data we obtain, and predict future usage using supervised machine learning. Our scope right now is the San Franscio Bay Area, but this code can be easily tweaked to examine other areas. The scope of this project will use data from the past five years, ranging from 2017-2021, analyze it, then predict the next five years with our model.
 
 ### Reason We Selected the Topic
 
@@ -14,11 +14,11 @@ We believe this is an interesting topic with lots of practical applications. By 
 
 We are taking our data directly from https://marinecadastre.gov/ais/. The data we are pulling from this site is called Automatic Information System (AIS), and it is a broadcast of the location and description of maritime vessels. This site in particular contains daily CSV files that contains daily activity in US waters. We are going to take data ranging back over the past five years, and perform an ETL on them to reduce them down to the following columns:
 
--MMSI \n
--DateTime \n
--Latitude \n
--Longitude \n
--VesselType
+*MMSI
+*DateTime
+*Latitude
+*Longitude
+*VesselType
 
 ### Questions We Hope to Answer
 
