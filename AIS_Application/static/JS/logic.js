@@ -127,25 +127,29 @@ function init() {
         var rightBound = latlon1.lng;
     }
 
-    var top = document.getElementById("top-bound");
-    var bottom = document.getElementById("bottom-bound");
-    var left = document.getElementById("left-bound");
-    var right = document.getElementById("right-bound");
+    document.latlon.topbound.value = topBound;
+    document.latlon.bottombound.value = bottomBound;
+    document.latlon.leftbound.value = leftBound;
+    document.latlon.rightbound.value = rightBound;
 
-    var top_content = document.createTextNode(`${topBound}`);
-    var bottom_content = document.createTextNode(`${bottomBound}`);
-    var left_content = document.createTextNode(`${leftBound}`);
-    var right_content = document.createTextNode(`${rightBound}`);
+    // var bottom = document.getElementById("bottom-bound");
+    // var left = document.getElementById("left-bound");
+    // var right = document.getElementById("right-bound");
 
-    top.innerHTML = "";
-    bottom.innerHTML = "";
-    left.innerHTML = "";
-    right.innerHTML = "";
+    // var top_content = document.createTextNode(`${topBound}`);
+    // var bottom_content = document.createTextNode(`${bottomBound}`);
+    // var left_content = document.createTextNode(`${leftBound}`);
+    // var right_content = document.createTextNode(`${rightBound}`);
 
-    top.appendChild(top_content);
-    bottom.appendChild(bottom_content);
-    left.appendChild(left_content);
-    right.appendChild(right_content);
+    // top.innerHTML = "";
+    // bottom.innerHTML = "";
+    // left.innerHTML = "";
+    // right.innerHTML = "";
+
+    // top.appendChild(top_content);
+    // bottom.appendChild(bottom_content);
+    // left.appendChild(left_content);
+    // right.appendChild(right_content);
 
 
 
