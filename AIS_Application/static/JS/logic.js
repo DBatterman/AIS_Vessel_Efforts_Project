@@ -74,26 +74,26 @@ marker1.on('dragend', function (e) {
 
 
 // DEFINE FUNCTION FOR DATA SEARCH
-function getDateRange() {
+// function getDateRange() {
 
-    // DEFINE AND COLLECT DATE ELEMENTS FOR SEARCH
-    var uniqueArray = {MMSI: [], VesselType: []};
-    var dateStart = d3.select("#date_start").property("value");
-    var dateEnd = d3.select("#date_end").property("value");
-    startDate = new Date(dateStart);
-    endDate = new Date(dateEnd);
-    dateBase = "1/1/2021";
-    baseDate = new Date(dateBase);
-        // // FINAL CALCS USING DATE ELEMENTS FOR JULIAN DATE
-    dayStart = Math.round(Math.abs((startDate.getTime()) - (baseDate.getTime()))/86400000 + 1);
-    dayEnd = Math.round(Math.abs((endDate.getTime()) - (baseDate.getTime()))/86400000 + 1);
-    console.log(dayStart);
-    console.log(dayEnd);
+//     // DEFINE AND COLLECT DATE ELEMENTS FOR SEARCH
+//     var uniqueArray = {MMSI: [], VesselType: []};
+//     var dateStart = d3.select("#date_start").property("value");
+//     var dateEnd = d3.select("#date_end").property("value");
+//     startDate = new Date(dateStart);
+//     endDate = new Date(dateEnd);
+//     dateBase = "1/1/2021";
+//     baseDate = new Date(dateBase);
+//         // // FINAL CALCS USING DATE ELEMENTS FOR JULIAN DATE
+//     dayStart = Math.round(Math.abs((startDate.getTime()) - (baseDate.getTime()))/86400000 + 1);
+//     dayEnd = Math.round(Math.abs((endDate.getTime()) - (baseDate.getTime()))/86400000 + 1);
+//     console.log(dayStart);
+//     console.log(dayEnd);
 
-    // DEFINE INITIAL LAT/LON OF SEARCH
+//     // DEFINE INITIAL LAT/LON OF SEARCH
     
 
-}
+// }
 
 function init() {
     var divElement1 = document.getElementById("status-update");
@@ -150,14 +150,8 @@ function init() {
     // bottom.appendChild(bottom_content);
     // left.appendChild(left_content);
     // right.appendChild(right_content);
-
-
-
-
-
-
 };
 
-d3.selectAll("#search_input").on("click", getDateRange);
+// d3.selectAll("#search_input").on("click", getDateRange);
 init();
 

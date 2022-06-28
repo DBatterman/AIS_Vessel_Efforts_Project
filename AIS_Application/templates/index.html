@@ -34,26 +34,6 @@
     <div class="container-fluid" style="background-color:rgb(145, 178, 178)">
         <div class="row" id="heading">
             <div class="col-sm-2" style="background-color:rgb(125, 150, 150); border: 2px solid black; color: black">
-                <!-- <div>
-                <form>
-                        <h5>Search Criteria:</h5>
-                    <ul class="list-group no-bullets">
-                        <li class="list-group">
-                            <label for="date_start">Enter Start Date</label>
-                        <!-- </li>
-                        <li> -->
-                            <!-- <input type="datetime" placeholder="1/1/2021" id="date_start" />
-                        </li>
-                        <li class="list-group">
-                            <label for="date_end">Enter End Date</label> -->
-                        <!-- </li>
-                        <li> -->
-                            <!-- <input type="datetime" placeholder="12/31/2021" id="date_end" />
-                        </li>
-                    </ul>
-                </form>
-                <button id="search_input">Submit Query</button>
-                </div> -->
                 <div>
                     <form name="latlon" id="latlon" class="list-group no-bullets">
                         <li class="list-group">Top Bound:</li>
@@ -108,19 +88,18 @@
             success:function(data)
             {
               $('#response pre').html( JSON.stringify( data ) );
-              alert('saved');
+              alert('Query Started! Please Wait...');
             }
-          }).done(function (data) {
-             console.log(data)});
+            }).done(function (data) {
+             console.log(data)}),
+            
+
+
 
           e.preventDefault();
 
         });
+
       </script>
-
-    
-
-
-
 </body>
 </html>
