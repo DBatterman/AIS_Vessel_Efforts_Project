@@ -16,59 +16,96 @@ var map = L.map("map", {
 });
 
 // SET MARKERS AND DRAG FUNCTIONS
-var marker1 = L.marker([37.8, -122.67], {
+var marker1 = L.marker([38.2, -123.3], {
     draggable: true,
     title: "1st"
     }).addTo(map);
 
-var marker = L.marker([37.9, -122.37], {
+var marker = L.marker([37.2, -121.3], {
     draggable: true,
     title: "2nd"
     }).addTo(map);
 
 var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false}).addTo(map);
 
+var latlon1 = {lat: 38.2, lng: -123.3};
+var latlon2 = {lat: 37.2, lng: -121.3};
+
 var dragger1 = 0;
 var dragger2 = 0;
 
 // SET INITIAL LAT/LON PAIRS FOR THE SEARCH, AND SET LISTENER TO LOOK FOR MARKER MOVES
-var latlon1 = {lat: 38.2, lng: -123.3};
-var latlon2 = {lat: 37.2, lng: -121.3};
+
 
 marker.on('dragend', function (e) {
-    init();
-    latlon1 = e.target._latlng;
-    dragger1 += 1;
+    latlon2 = e.target._latlng;
+
+    if (+latlon1.lat >= +latlon2.lat) {
+        var topBound = +latlon1.lat;
+        var bottomBound = +latlon2.lat;
+    } else {
+        var topBound = +latlon2.lat;
+        var bottomBound = +latlon1.lat;
+    }
+    if (+latlon1.lng <= +latlon2.lng) {
+        var leftBound = +latlon1.lng;
+        var rightBound = +latlon2.lng;
+    } else {
+        var leftBound = +latlon2.lng;
+        var rightBound = +latlon1.lng;
+    }
+
     map.eachLayer(layer => {
-        if (dragger1 >= 1 && dragger2 >= 1) {
-            if (layer._bounds !== 'undefined' && Object.keys(layer).length == 15) {
-                map.removeLayer(layer);
+        if (layer._bounds !== 'undefined' && Object.keys(layer).length == 15) {
+            map.removeLayer(layer);
+        }
         var searchArea = L.rectangle([latlon1, latlon2], {color: "red", weight: 2, fill: false});
         var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false});
         searchArea.addTo(map);
         searchExtentSF.addTo(map);
-        
-        }
-}});
-    return latlon1;
+});
+    
+    document.latlon.topbound.value = topBound.toFixed(4);
+    document.latlon.bottombound.value = bottomBound.toFixed(4);
+    document.latlon.leftbound.value = leftBound.toFixed(4);
+    document.latlon.rightbound.value = rightBound.toFixed(4);
+    return latlon2;
 });
 
 marker1.on('dragend', function (e) {
-    init();
-    latlon2 = e.target._latlng;
-    dragger2 += 1;
+    latlon1 = e.target._latlng;
+
+    if (+latlon1.lat >= +latlon2.lat) {
+        var topBound = +latlon1.lat;
+        var bottomBound = +latlon2.lat;
+    } else {
+        var topBound = +latlon2.lat;
+        var bottomBound = +latlon1.lat;
+    }
+    if (+latlon1.lng <= +latlon2.lng) {
+        var leftBound = +latlon1.lng;
+        var rightBound = +latlon2.lng;
+    } else {
+        var leftBound = +latlon2.lng;
+        var rightBound = +latlon1.lng;
+    }
+
     map.eachLayer(layer => {
-        if (dragger1 >= 1 && dragger2 >= 1) {
-            if (layer._bounds !== 'undefined' && Object.keys(layer).length == 15) {
-                map.removeLayer(layer);
-            }
+        if (layer._bounds !== 'undefined' && Object.keys(layer).length == 15) {
+            map.removeLayer(layer);
+        }
         var searchArea = L.rectangle([latlon1, latlon2], {color: "red", weight: 2, fill: false});
         var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false});
         searchArea.addTo(map);
         searchExtentSF.addTo(map);
         
-}});
-    return latlon2;
+});
+
+    document.latlon.topbound.value = topBound.toFixed(4);
+    document.latlon.bottombound.value = bottomBound.toFixed(4);
+    document.latlon.leftbound.value = leftBound.toFixed(4);
+    document.latlon.rightbound.value = rightBound.toFixed(4);
+    return latlon1;
 });
 
 
@@ -100,7 +137,7 @@ function init() {
     var divElement2 = document.getElementById("search-desc");
     var divElement3 = document.getElementById("area-desc");
 
-    var content1 = document.createTextNode("Please input dates and move each marker to define the search area.");
+    var content1 = document.createTextNode("Please press 'submit' once the desired search area appears on the map.");
     var content2 = document.createTextNode("The red box defines the search area. It appears after both markers have been moved.");
     var content3 = document.createTextNode("The blue box defines the search extent. This is the area limit to the data.");
 
@@ -112,25 +149,9 @@ function init() {
     divElement2.appendChild(content2);
     divElement3.appendChild(content3);
 
-    if (latlon1.lat >= latlon2.lat) {
-        var topBound = latlon1.lat;
-        var bottomBound = latlon2.lat;
-    } else {
-        var topBound = latlon2.lat;
-        var bottomBound = latlon1.lat;
-    }
-    if (latlon1.lng <= latlon2.lng) {
-        var leftBound = latlon1.lng;
-        var rightBound = latlon2.lng;
-    } else {
-        var leftBound = latlon2.lng;
-        var rightBound = latlon1.lng;
-    }
+    
 
-    document.latlon.topbound.value = topBound;
-    document.latlon.bottombound.value = bottomBound;
-    document.latlon.leftbound.value = leftBound;
-    document.latlon.rightbound.value = rightBound;
+    
 
     // var bottom = document.getElementById("bottom-bound");
     // var left = document.getElementById("left-bound");
@@ -154,4 +175,6 @@ function init() {
 
 // d3.selectAll("#search_input").on("click", getDateRange);
 init();
+
+
 
