@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+AIS_Application/configFinal.py
 # C extensions
 *.so
 
