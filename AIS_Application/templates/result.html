@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://d3js.org/d3.v3.min.js"></script>
 </head>
-<body style="background-color:rgb(145, 178, 178)">
+<body style="background-color: whitesmoke">
     <div class="wrapper">
         <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
             <a class="navbar-brand" href="/"><small>New Search</small></a>
@@ -22,34 +22,36 @@
     </div>
     </div>
       <div class="container-fluid">
+        <div class="container-fluid">
         <div class="row">
             <p id="bounds"></p>
         </div>
+        </div>
         <div class="container-fluid">
-          <div class="row" id="heading">
+          <div class="row" id="heading-summary">
               <div class="col-sm-3" id="summary" style="border: 2px solid black; color: black">
                 <h3>Summary:</h3><br>
-                <p>The AIS groups below combine various ship-type codes into common categories. These are then enumerated over the interval selected. Predictive modeling was applied to the results to visualize an overall trend, and to predict future vessel quantities.</p>
+                <p id="summary"></p>
               </div>
               <div class="col-sm-5" id="map1" style="border: 2px solid black; color: black"></div>
               <div class="col-sm-4" id="Pie-Chart"></div>
             </div>
           </div>
           <div class="row" id="heading">
-              <div class="col-sm-6" id="All-Vessels"></div>
-              <div class="col-sm-6" id="Fishing-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="All-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Fishing-Vessels"></div>
           </div>
           <div class="row" id="heading">
-              <div class="col-sm-6" id="TugTow-Vessels"></div>
-              <div class="col-sm-6" id="Rec-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="TugTow-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Rec-Vessels"></div>
           </div>
           <div class="row" id="heading">
-              <div class="col-sm-6" id="Passenger-Vessels"></div>
-              <div class="col-sm-6" id="Cargo-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Passenger-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Cargo-Vessels"></div>
           </div>
           <div class="row" id="heading">
-              <div class="col-sm-6" id="Tanker-Vessels"></div>
-              <div class="col-sm-6" id="Other-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Tanker-Vessels"></div>
+              <div class="col-sm-6 mb-3" id="Other-Vessels"></div>
           </div>
           <div class="row" id="heading">
               <div class="col-sm-6" id="Unav-Vessels"></div>

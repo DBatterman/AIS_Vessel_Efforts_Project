@@ -1,9 +1,15 @@
 import pandas as pd
 from flask import Response, url_for, Flask, flash, redirect, render_template, request, session, abort, send_from_directory, send_file, jsonify
-import json
 import numpy as np
 import psycopg2
 import config2
+# from scipy.stats import linregress
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error,mean_squared_error, r2_score
+
 
 password = config2.password
 
@@ -11,7 +17,17 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 
 class DataStore():
     Index=None,
-    LatLon=None
+    LatLon=None,
+    Fishing=None,
+    TugTow=None,
+    Recreational=None,
+    Passenger=None,
+    Cargo=None,
+    Tanker=None,
+    Other=None,
+    Unavailable=None,
+    Total=None,
+    Metrics=None
 aisData = DataStore()
 
 @app.route("/", methods=["GET", "POST"])
@@ -60,18 +76,19 @@ def homepage():
                 unique_dates.append(x)
 
         AIS_df = pd.DataFrame(
-            columns=["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable"],
+            columns=["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"],
             index=unique_dates)
 
         zero_data = np.zeros(shape=(len(AIS_df), len(AIS_df.columns)))
 
         AIS_df = pd.DataFrame(zero_data,
                               columns=["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other",
-                                       "Unavailable"], index=unique_dates)
+                                       "Unavailable", "Total"], index=unique_dates)
 
         for index, row in enumerate(AIS_df.index):
             search_result = data_df.loc[row]
             for index, row in search_result.iterrows():
+                AIS_df.loc[index, "Total"] += row[1]
                 if row[0] == 30:
                     AIS_df.loc[index, "Fishing"] += row[1]
                 elif (row[0] == 31) or (row[0] == 32) or (row[0] == 52):
@@ -90,15 +107,74 @@ def homepage():
                     AIS_df.loc[index, "Other"] += row[1]
 
         AIS_df.reset_index(inplace=True)
+        AIS_df.rename(columns={'index': 'Date'}, inplace=True)
 
-        if AIS_df.empty:
-            print("No data in search area!")
+        print("No data in search area!")
+
+
+## ML Linear Regression Model
+        AIS_df.reset_index(inplace=True)
+
+        print(AIS_df)
+
+        types = ["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"]
 
         aisData.Index = jsonify(AIS_df.to_json(orient="index"))
         dataset = aisData.Index
         aisData.LatLon = jsonify(data)
+        metrics = {}
 
-        print(aisData.Index)
+        def ais_graphs():
+            for boat_type in types:
+                results = pd.DataFrame(columns=["Y_Pred", "X_Test"])
+                y = AIS_df[boat_type]
+                # Create our features
+                X = AIS_df.drop(["Date", "Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"], axis=1)
+
+                X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+
+                model = LinearRegression()
+
+                model.fit(X_train, y_train)
+
+                y_pred = model.predict(X_test)
+
+                MSE = mean_squared_error(y_true=y_test, y_pred=y_pred)
+                MAE = mean_absolute_error(y_true=y_test, y_pred=y_pred)
+                X_int = model.intercept_
+                Slope = model.coef_
+                R2 = r2_score(y_true=y_test, y_pred=y_pred)
+                print(X_int)
+                print(Slope[0])
+
+
+                metrics[boat_type] = {"MSE": round(MSE, 3), "MAE": round(MAE, 3), "Slope": round(Slope[0], 3), "Intercept": round(X_int, 3), "r2": round(R2, 3)}
+
+                results["Y_Pred"] = y_pred
+                results["X_Test"] = X_test.reset_index(drop=True)
+                results_sort = results.sort_values(by="X_Test").reset_index(drop=True)
+
+                if boat_type == "Fishing":
+                    aisData.Fishing = jsonify(results_sort.to_json())
+                elif boat_type == "TugTow":
+                    aisData.TugTow = jsonify(results_sort.to_json())
+                elif boat_type == "Recreational":
+                    aisData.Recreational = jsonify(results_sort.to_json())
+                elif boat_type == "Passenger":
+                    aisData.Passenger = jsonify(results_sort.to_json())
+                elif boat_type == "Cargo":
+                    aisData.Cargo = jsonify(results_sort.to_json())
+                elif boat_type == "Tanker":
+                    aisData.Tanker = jsonify(results_sort.to_json())
+                elif boat_type == "Other":
+                    aisData.Other = jsonify(results_sort.to_json())
+                elif boat_type == "Unavailable":
+                    aisData.Unavailable = jsonify(results_sort.to_json())
+                elif boat_type == "Total":
+                    aisData.Total = jsonify(results_sort.to_json())
+
+        ais_graphs()
+        aisData.Metrics = jsonify(metrics)
         return dataset
     else:
         return render_template("index.html")
@@ -112,9 +188,45 @@ def result():
 def data():
     return aisData.Index
 
+@app.route("/get-metrics")
+def metrics():
+    return aisData.Metrics
+
 @app.route("/get-latlon")
 def location():
     return aisData.LatLon
+
+@app.route("/get-ml-fish")
+def ml_fish():
+    return aisData.Fishing
+
+@app.route("/get-ml-tugtow")
+def ml_tugtow():
+    return aisData.TugTow
+
+@app.route("/get-ml-rec")
+def ml_rec():
+    return aisData.Recreational
+
+@app.route("/get-ml-pass")
+def ml_pass():
+    return aisData.Passenger
+
+@app.route("/get-ml-cargo")
+def ml_cargo():
+    return aisData.Cargo
+
+@app.route("/get-ml-tanker")
+def ml_tanker():
+    return aisData.Tanker
+
+@app.route("/get-ml-other")
+def ml_other():
+    return aisData.Other
+
+@app.route("/get-ml-total")
+def ml_total():
+    return aisData.Total
 
 if __name__ == '__main__':
     # app.secret_key = 'testkey2'
