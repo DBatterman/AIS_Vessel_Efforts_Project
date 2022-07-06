@@ -183,6 +183,9 @@ def homepage():
 def result():
     return render_template("result.html")
 
+@app.route("/time_series")
+def time_series():
+    return render_template("result1.html")
 
 @app.route("/get-data")
 def data():
