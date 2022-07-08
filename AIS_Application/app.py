@@ -38,11 +38,11 @@ def homepage():
         print(data)
 
         connection = psycopg2.connect(
+            database="postgres",
             user="postgres",
             password=password,
-            host="127.0.0.1",
-            port="5432",
-            database="AIS_Project")
+            host="aisdb.c6lmgfjuy49v.us-west-1.rds.amazonaws.com",
+            port="5432")
 
         cursor = connection.cursor()
 
