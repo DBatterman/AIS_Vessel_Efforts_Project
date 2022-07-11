@@ -45,6 +45,9 @@ Data was split into test, train sets using sklearn's test_train_split. The Linea
 
 Scaling was used only with the LSTM model.
 
+The main advantages of the linear regression model were found when interperating, and training our data. Since we were looking at every boat type independantly, all the data we worked with was linearly seperable. Having linearly seperable data made it easy for us to interperate and train our data using sklearn and create visualizations. Overall, Linear Regression an effective option for us to see trends and make predictions. 
+However, we did find there are some limitations with our linear regression model. It was quite sensitive to the outliers, which were seen in the boat types that experienced seasonality.  
+
 ### Database setup
 
 PostgreSQL was used as the database for this project, and was linked to AWS RDS cloud database services. This database consists of a single table spanning 4+ years of AIS data from 2018-early 2022. This data is queried by the flask application to output a summary of each vessel-type code per chosen time interval. This output is used to run the models and plot the resulting data.
