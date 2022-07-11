@@ -46,7 +46,7 @@ Data was split into test, train sets using sklearn's test_train_split. The Linea
 Scaling was used only with the LSTM model.
 
 The main advantages of the linear regression model were found when interperating, and training our data. Since we were looking at every boat type independantly, all the data we worked with was linearly seperable. Having linearly seperable data made it easy for us to interperate and train our data using sklearn and create visualizations. Overall, Linear Regression an effective option for us to see trends and make predictions. 
-However, we did find there are some limitations with our linear regression model. It was quite sensitive to the outliers, which were seen in the boat types that experienced seasonality.  
+However, we did find there are some limitations with our linear regression model. It is quite sensitive to the outliers, which effected the slope of the boat types that experienced seasonality. Furthermore, the model was not consistently accurate for every model. Again, boat types that experienced seasonality had more of a curve than a linear trend which would sku the accuracy score. 
 
 ### Database setup
 
