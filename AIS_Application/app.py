@@ -65,7 +65,6 @@ def homepage():
                 ''')
 
         record = cursor.fetchall()
-        print(record)
         data_df = pd.DataFrame(record, columns=["basedatetime", "vesseltype", "count"])
         data_df = data_df.set_index("basedatetime")
 
@@ -108,9 +107,6 @@ def homepage():
 
         AIS_df.reset_index(inplace=True)
         AIS_df.rename(columns={'index': 'Date'}, inplace=True)
-
-        print("No data in search area!")
-
 
 ## ML Linear Regression Model
         AIS_df.reset_index(inplace=True)
