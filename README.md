@@ -33,9 +33,17 @@ There are two main questions we hope to answer with this project. They are:
 
 We plan to meet over Zoom during class on Tuesday and Thursday, we a catchup meeting on Sundays. There will also be daily communication through Slack as well as individual meetings when needed.
 
+### Preprocessing
+
+The ETL process used a python script that pulled the data from the web using BeautifulSoup, and then filter it down to the defined data extent for the San Francisco region, and remove/fill in missing data. This data was output as daily csv files. Next, the data was pushed to the postgreSQL database, which was delayed due to the throttling in AWS's free tier. 
+
 ### Machine Learning Applications
 
 This project utilized Linear Regression and LSTM machine learning models on the data. The linear regression outputs the average change over time based on the historical data, which can be used estimate the expected change in the near-future. The LSTM model attempts to find an accurate prediciton based on the historical data.
+
+Data was split into test, train sets using sklearn's test_train_split. The Linear Regression used random sampling for the test-train data, while the LSTM used a set split at 75% of the length of the dataset.
+
+Scaling was used only with the LSTM model.
 
 ### Database setup
 
