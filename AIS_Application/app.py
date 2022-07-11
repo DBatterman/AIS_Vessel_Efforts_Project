@@ -32,7 +32,6 @@ aisData = DataStore()
 
 @app.route("/", methods=["GET", "POST"])
 def homepage():
-    aisJSON = None
     if request.method == "POST":
         data = request.get_json()
         print(data)
