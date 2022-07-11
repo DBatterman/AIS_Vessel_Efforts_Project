@@ -46,25 +46,26 @@ def homepage():
         cursor = connection.cursor()
 
         cursor.execute(f'''
-        WITH location_search as (
-            SELECT * FROM "ais_raw_data"
-            WHERE ("LAT" BETWEEN {data["Bottom_Bound"]} AND {data["Top_Bound"]}) AND ("LON" BETWEEN {data["Left_Bound"]} AND {data["Right_Bound"]})),
+                WITH location_search as (
+                    SELECT * FROM "ais_raw_data"
+                    WHERE ("LAT" BETWEEN {data["Bottom_Bound"]} AND {data["Top_Bound"]}) AND ("LON" BETWEEN {data["Left_Bound"]} AND {data["Right_Bound"]})),
 
-            "convert_query" as (
-            SELECT to_char("BaseDateTime", '{data["Resolution"]}') as "date", "MMSI", "VesselType"
-            FROM "location_search"),
+                    "convert_query" as (
+                    SELECT to_char("BaseDateTime", '{data["Resolution"]}') as "date", "MMSI", "VesselType"
+                    FROM "location_search"),
 
-            "unique_search" as (
-            SELECT DISTINCT("date", "MMSI", "VesselType") as "test", "date", "VesselType" FROM "convert_query"
-            GROUP BY "test", "date", "VesselType")
+                    "unique_search" as (
+                    SELECT DISTINCT("date", "MMSI", "VesselType") as "test", "date", "VesselType" FROM "convert_query"
+                    GROUP BY "test", "date", "VesselType")
 
-        SELECT "date", "VesselType", Count("VesselType") 
-        FROM unique_search
-        GROUP BY "date", "VesselType"
-        ORDER BY "date";
-        ''')
+                SELECT "date", "VesselType", Count("VesselType")
+                FROM unique_search
+                GROUP BY "date", "VesselType"
+                ORDER BY "date";
+                ''')
 
         record = cursor.fetchall()
+        print(record)
         data_df = pd.DataFrame(record, columns=["basedatetime", "vesseltype", "count"])
         data_df = data_df.set_index("basedatetime")
 

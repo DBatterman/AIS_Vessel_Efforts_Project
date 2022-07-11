@@ -26,10 +26,30 @@ There are two main questions we hope to answer with this project. They are:
 
 1) What are the different types of vessels are opperating in the selected area? As a followup to this, we are going to break down the percentage of each type of vessel that uses the various waterways in the area we're examining.
 
-2) What does the potential growth in traffic along the waterways look like in the next five years, and does can we use this to plan new waterways?
+2) What does the potential growth in traffic along the waterways look like in the future, and can we use this to plan changes in the chosen waterways?
 
 
 ### What the Communication Protocols Are
 
 We plan to meet over Zoom during class on Tuesday and Thursday, we a catchup meeting on Sundays. There will also be daily communication through Slack as well as individual meetings when needed.
+
+### Machine Learning Applications
+
+This project utilized Linear Regression and LSTM machine learning models on the data. The linear regression outputs the average change over time based on the historical data, which can be used estimate the expected change in the near-future. The LSTM model attempts to find an accurate prediciton based on the historical data.
+
+### Database setup
+
+PostgreSQL was used as the database for this project, and was linked to AWS RDS cloud database services. This database consists of a single table spanning 4+ years of AIS data from 2018-early 2022. This data is queried by the flask application to output a summary of each vessel-type code per chosen time interval. This output is used to run the models and plot the resulting data.
+
+Databased consists of more than 234,721,320 rows.
+
+### The dashboard
+
+The dashboard is integrated into the front-end. It will automatically redirect when the search completes and show the search area, the summary of vessels, the percentage breakdown, and each vessel-type plotted over time and the linear regression results.
+
+The LSTM model has a separate dashboard that can be redirected to using the navigation bar at the top of the screen.
+
+![Search Window](Pictures/Homepage_Search.png)
+
+![Results](Pictures/Dashboard_LR.png)
 
