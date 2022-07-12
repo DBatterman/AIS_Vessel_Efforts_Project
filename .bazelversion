@@ -1,0 +1,2 @@
+cat .bazelversion # == 4.2.0
+
