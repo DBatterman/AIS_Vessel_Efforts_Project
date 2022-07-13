@@ -1,20 +1,26 @@
+### Import Dependencies
 import pandas as pd
-from flask import Response, url_for, Flask, flash, redirect, render_template, request, session, abort, send_from_directory, send_file, jsonify
+from flask import Response, url_for, Flask, flash, redirect, render_template, request, session, abort, jsonify
 import numpy as np
+import math
 import psycopg2
 import config2
-# from scipy.stats import linregress
-from sklearn.metrics import balanced_accuracy_score
-from sklearn.metrics import confusion_matrix
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error,mean_squared_error, r2_score
+from sklearn.preprocessing import MinMaxScaler
+from keras.layers import Dense, LSTM
+from keras.callbacks import EarlyStopping
+from keras.models import Sequential
 
 
+### Call Password File
 password = config2.password
 
+### Initiate APP
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
+### Create Datastore independent of application routes
 class DataStore():
     Index=None,
     LatLon=None,
@@ -27,15 +33,24 @@ class DataStore():
     Other=None,
     Unavailable=None,
     Total=None,
-    Metrics=None
+    Metrics=None,
+    LSTM_results=None
+
+### make Datastore callable
 aisData = DataStore()
 
+### Homepage Route
 @app.route("/", methods=["GET", "POST"])
-def homepage():
-    if request.method == "POST":
-        data = request.get_json()
-        print(data)
 
+def homepage():
+
+### If POST request is recieved from the HTML (on click of the submit), then execute the following:
+    if request.method == "POST":
+
+### Retrieve JSON Object from HTML with LAT/LON and date resolution pairs.
+        data = request.get_json()
+
+### Create connection to database
         connection = psycopg2.connect(
             database="postgres",
             user="postgres",
@@ -43,8 +58,10 @@ def homepage():
             host="aisdb.c6lmgfjuy49v.us-west-1.rds.amazonaws.com",
             port="5432")
 
+### Create cursor object for connection
         cursor = connection.cursor()
 
+### Execute Query based on JSON Object received from the POST request
         cursor.execute(f'''
                 WITH location_search as (
                     SELECT * FROM "ais_raw_data"
@@ -64,26 +81,37 @@ def homepage():
                 ORDER BY "date";
                 ''')
 
+### Request the resulting table from the database
         record = cursor.fetchall()
+
+### Convert table to pandas Dataframe
         data_df = pd.DataFrame(record, columns=["basedatetime", "vesseltype", "count"])
+
+### Set the index to the column BaseDateTime (all date intervals are unique based on search)
         data_df = data_df.set_index("basedatetime")
 
+### Create empty array to store the date data (for labeling)
         unique_dates = []
 
+### Process each date into the above array
         for x in data_df.index:
             if x not in unique_dates:
                 unique_dates.append(x)
 
+### Create empty dataframe for the AIS data, set index to the dates processed into the array
         AIS_df = pd.DataFrame(
             columns=["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"],
             index=unique_dates)
 
+### Create an array of zeros matching the shape of the AIS data recieved
         zero_data = np.zeros(shape=(len(AIS_df), len(AIS_df.columns)))
 
+### Redefine AIS_df to include the zeros data from above
         AIS_df = pd.DataFrame(zero_data,
                               columns=["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other",
                                        "Unavailable", "Total"], index=unique_dates)
 
+### Populate AIS_df from the query, enumerating each category based on the vessel type
         for index, row in enumerate(AIS_df.index):
             search_result = data_df.loc[row]
             for index, row in search_result.iterrows():
@@ -105,51 +133,70 @@ def homepage():
                 else:
                     AIS_df.loc[index, "Other"] += row[1]
 
+### Reset the index of the dataframe to include the dates as a column, rename as 'Date'
         AIS_df.reset_index(inplace=True)
         AIS_df.rename(columns={'index': 'Date'}, inplace=True)
 
-## ML Linear Regression Model
+### Reset the index again to get a column counting each row (need integer for ML models, not dates)
         AIS_df.reset_index(inplace=True)
 
-        print(AIS_df)
-
+### Define vessel types as an array to loop through in the models
         types = ["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"]
 
+### Assign raw enumerated data to the DataStore
         aisData.Index = jsonify(AIS_df.to_json(orient="index"))
+
+### Create returnable object for route function
         dataset = aisData.Index
+
+### Assign LAT/LON data to the Datastore
         aisData.LatLon = jsonify(data)
+
+### create empty dictionary for the metrics from the LinearRegression model
         metrics = {}
 
+### Create empty dataframe for LSTM results
+        train_test_df = pd.DataFrame()
+
+### Define function to run LinearRegression model on all vessel types
         def ais_graphs():
+
+    ### Loop through each vessel type
             for boat_type in types:
+    ### Create empty database with columns for the predictions and test values
                 results = pd.DataFrame(columns=["Y_Pred", "X_Test"])
+    ### Define the y-axis data
                 y = AIS_df[boat_type]
-                # Create our features
+    ### Define the x-axis data
                 X = AIS_df.drop(["Date", "Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"], axis=1)
-
+    ### Randomly sample test, train datasets for the model
                 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
-
+    ### Call the model
                 model = LinearRegression()
-
+    ### Fit the model with the training data
                 model.fit(X_train, y_train)
-
+    ### Predict values based on the trained model
                 y_pred = model.predict(X_test)
-
+    ### Assign root mean squared error
                 MSE = mean_squared_error(y_true=y_test, y_pred=y_pred)
+    ### Assign mean absolute error
                 MAE = mean_absolute_error(y_true=y_test, y_pred=y_pred)
+    ### Assign x-intercept for the model trendline
                 X_int = model.intercept_
+    ### Assign slope coefficient for the model trendline
                 Slope = model.coef_
+    ### Assign R2 value for the model
                 R2 = r2_score(y_true=y_test, y_pred=y_pred)
-                print(X_int)
-                print(Slope[0])
-
-
+    ### Assign metrics to the dict created, round values to three decimal places
                 metrics[boat_type] = {"MSE": round(MSE, 3), "MAE": round(MAE, 3), "Slope": round(Slope[0], 3), "Intercept": round(X_int, 3), "r2": round(R2, 3)}
 
+    ### Assign values to dataframe created
                 results["Y_Pred"] = y_pred
+    ### Reset the index and drop the old column, to match test values to the predictions
                 results["X_Test"] = X_test.reset_index(drop=True)
+    ### Sort by the x-axis values, reset index to make this the new order
                 results_sort = results.sort_values(by="X_Test").reset_index(drop=True)
-
+    ### Push all results to the Datastore as a JSON Object
                 if boat_type == "Fishing":
                     aisData.Fishing = jsonify(results_sort.to_json())
                 elif boat_type == "TugTow":
@@ -169,8 +216,139 @@ def homepage():
                 elif boat_type == "Total":
                     aisData.Total = jsonify(results_sort.to_json())
 
+
+### Define the LSTM Function
+
+    #### ADD DANNY's FULL STYLE, ADD DATASTORE FOR EACH, ROUTE FOR EACH
+
+                def BoatModel(x):
+                    x_data = AIS_df[x]
+
+### Convert the DataFrame into an array, and change the type to floats for the Neural Network
+                    data = x_data.values
+                    data = data.astype('float32')
+
+            ### Normalize the data by using a scaler
+                    scaler = MinMaxScaler(feature_range=(0, 1))
+                    data = scaler.fit_transform(data)
+
+            ### Split our data into training and testing using slicing, and check the length
+
+            ### Determin the length of what our split will be
+                    data_split = int(len(data) * 0.75)
+
+            ### Slice the data and print the results
+                    train, test = data[:data_split], data[data_split:]
+
+            ### Make a function that creates both X and y values for the data
+                    def create_dataset(dataset, look_back=1):
+                        dataX, dataY = [], []
+                        for i in range(len(dataset) - look_back - 1):
+                            a = dataset[i:(i + look_back), 0]
+                            dataX.append(a)
+                            dataY.append(dataset[i + look_back, 0])
+                        return np.array(dataX), np.array(dataY)
+
+            ### Define how much time we're looking into the past,
+            ### and split our values into X=t and Y=t+1, where t is that time
+                    look_back = 1
+                    trainX, trainY = create_dataset(train, look_back)
+                    testX, testY = create_dataset(test, look_back)
+
+            ### Reshape the data to incorperate into the LSTM
+                    trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+                    testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+
+            ### Create and fit the LSTM network
+                    model = Sequential()
+                    model.add(LSTM(4, activation='relu', input_shape=(1, look_back)))
+                    model.add(Dense(2))
+                    model.add(Dense(1))
+                    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse', 'mae', 'mape'])
+                    es = [EarlyStopping(monitor='loss', patience=15)]
+                    fit_model = model.fit(trainX, trainY, epochs=100, validation_split=0.3, batch_size=1, verbose=2,
+                                          callbacks=[es])
+
+            ### Make predictions
+                    trainPredict = fit_model.predict(trainX)
+                    testPredict = fit_model.predict(testX)
+
+            ### Invert the predictions to graph later
+                    trainPredict = scaler.inverse_transform(trainPredict)
+                    trainY = scaler.inverse_transform([trainY])
+                    testPredict = scaler.inverse_transform(testPredict)
+                    testY = scaler.inverse_transform([testY])
+
+            ### Calculate root mean squared error
+                    trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:, 0]))
+                    testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
+
+            ### Push RMS and AME to metrics dict
+                    metrics[f"LSTM_{x}"] = {"MSE": round(MSE, 3), "MAE": round(MAE, 3), "Slope": 0,
+                                          "Intercept": 0, "r2": 0}
+
+                    ### Shift the train predictions for plotting
+                    trainPredictPlot = np.empty_like(data)
+                    trainPredictPlot[:, :] = np.nan
+                    trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
+
+            ### Shift the test predictions for plotting
+                    testPredictPlot = np.empty_like(data)
+                    testPredictPlot[:, :] = np.nan
+                    testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(data) - 1, :] = testPredict
+
+            ### Create a function for future predictions
+
+                    def predict(num_prediction, model):
+                        prediction_list = data[-look_back:]
+
+                        for _ in range(num_prediction):
+                            x = prediction_list[-look_back:]
+                            x = x.reshape((1, look_back, 1))
+                            out = model.predict(x)[0][0]
+                            prediction_list = np.append(prediction_list, out)
+                        prediction_list = prediction_list[look_back - 1:]
+
+                        return prediction_list
+
+            ### Predict the next 30 days of data
+                    forecast = predict(30, model)
+                    forecast = forecast.reshape((-1, 1))
+                    forecast = scaler.inverse_transform(forecast)
+
+            ### Plot the prediction on a graph
+
+                    future = len(data) + len(forecast)
+
+                    futurePlot = np.zeros((future, 1))
+                    futurePlot[:, :] = np.nan
+                    futurePlot[-len(forecast):] = forecast
+
+            ### Create single dataframe of test/train/predict values
+
+                    train_data = trainPredictPlot
+                    test_data = testPredictPlot
+                    predict_plot = futurePlot
+
+                    train_test = pd.DataFrame(train_data.reshape(-1))
+                    test_test = pd.DataFrame(test_data.reshape(-1))
+                    predict_test = pd.DataFrame(predict_plot.reshape(-1))
+
+                    for ind in train_test.index:
+                        if train_test[0][ind] != train_test[0][ind]:
+                            train_test.iloc[ind] = test_test[0][ind]
+
+                    for ind in predict_test.index:
+                        if predict_test[0][ind] == predict_test[0][ind]:
+                            train_test = train_test.append(pd.DataFrame({0: [predict_test[0][ind]]}, index=[ind]))
+                    train_test.rename(index={0: f"{x}"})
+                    print(train_test)
+                    return train_test
+### Call LinearRegression Function
         ais_graphs()
+### Assign output metrics dict to the DataStore
         aisData.Metrics = jsonify(metrics)
+        print(train_test_df)
         return dataset
     else:
         return render_template("index.html")
