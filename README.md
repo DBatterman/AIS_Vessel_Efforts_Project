@@ -24,14 +24,14 @@ We are taking our data directly from https://marinecadastre.gov/ais/. The data w
 
 There are two main questions we hope to answer with this project. They are:
 
-1) What are the different types of vessels are opperating in the selected area? As a followup to this, we are going to break down the percentage of each type of vessel that uses the various waterways in the area we're examining.
+1) What are the different types of vessels operating in the selected area? As a followup to this, we are going to break down the percentage of each type of vessel that uses the various waterways in the area we're examining.
 
 2) What does the potential growth in traffic along the waterways look like in the future, and can we use this to plan changes in the chosen waterways?
 
 
 ### What the Communication Protocols Are
 
-We plan to meet over Zoom during class on Tuesday and Thursday, we a catchup meeting on Sundays. There will also be daily communication through Slack as well as individual meetings when needed.
+We plan to meet over Zoom during class on Tuesday and Thursday, and a catchup meeting on Sundays. There will also be daily communication through Slack as well as individual meetings when needed.
 
 ### Preprocessing
 
@@ -39,14 +39,14 @@ The ETL process used a python script that pulled the data from the web using Bea
 
 ### Machine Learning Applications
 
-This project utilized Linear Regression and LSTM machine learning models on the data. The linear regression outputs the average change over time based on the historical data, which can be used estimate the expected change in the near-future. The LSTM model attempts to find an accurate prediciton based on the historical data.
+This project utilized Linear Regression and LSTM machine learning models on the data. The linear regression outputs the average change over time based on the historical data, which can be used to estimate the expected change in the near-future. The LSTM model attempts to find an accurate prediciton based on the historical data.
 
 Data was split into test, train sets using sklearn's test_train_split. The Linear Regression used random sampling for the test-train data, while the LSTM used a set split at 75% of the length of the dataset.
 
 Scaling was used only with the LSTM model.
 
-The main advantages of the linear regression model were found when interperating, and training our data. Since we were looking at every boat type independantly, all the data we worked with was linearly seperable. Having linearly seperable data made it easy for us to interperate and train our data using sklearn and create visualizations. Overall, Linear Regression an effective option for us to see trends and make predictions. 
-However, we did find there are some limitations with our linear regression model. It is quite sensitive to the outliers, which effected the slope of the boat types that experienced seasonality. Furthermore, the model was not consistently accurate for every model. Again, boat types that experienced seasonality had more of a curve than a linear trend which would effect the accuracy score. Although the linear regression model is easy to implement it was not the best model to use for certain types of boats. 
+The main advantages of the linear regression model were found when interperating, and training our data. Since we were looking at every boat type independantly, all the data we worked with was linearly seperable. Having linearly seperable data made it easy for us to interperate and train our data using sklearn and create visualizations. Overall, Linear Regression is an effective option for us to see trends and make predictions. 
+However, we did find there are some limitations with our linear regression model. It is quite sensitive to the outliers, which affected the slope of the boat types that experienced seasonality. Furthermore, the model was not consistently accurate for every model. Again, boat types that experienced seasonality had more of a curve than a linear trend which would affect the accuracy score. Although the linear regression model is easy to implement, it was not the best model to use for certain types of boats. 
 
 ### Database setup
 
