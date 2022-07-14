@@ -60,6 +60,8 @@ The dashboard is integrated into the front-end. It will automatically redirect w
 
 The LSTM model has a separate dashboard that can be redirected to using the navigation bar at the top of the screen.
 
+Unfortunately, the LSTM model was unable to be implemented into the application for this project.
+
 ![Search Window](Pictures/Homepage_Search.png)
 
 ![Results](Pictures/Dashboard_LR.png)
