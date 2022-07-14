@@ -41,23 +41,23 @@ d3.json("/get-data", function(error, data) {
 
     var names = ["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable"];
 
-    var ml_fish_X = [];
-    var ml_total_X = [];
-    var ml_rec_X = [];
-    var ml_tugtow_X = [];
-    var ml_pass_X = [];
-    var ml_cargo_X = [];
-    var ml_tanker_X = [];
-    var ml_other_X = [];
+    var ml_fish_X_LSTM = [];
+    var ml_total_X_LSTM  = [];
+    var ml_rec_X_LSTM  = [];
+    var ml_tugtow_X_LSTM  = [];
+    var ml_pass_X_LSTM  = [];
+    var ml_cargo_X_LSTM  = [];
+    var ml_tanker_X_LSTM  = [];
+    var ml_other_X_LSTM  = [];
 
-    var ml_fish_Y = [];
-    var ml_total_Y = [];
-    var ml_rec_Y = [];
-    var ml_tugtow_Y = [];
-    var ml_pass_Y = [];
-    var ml_cargo_Y = [];
-    var ml_tanker_Y = [];
-    var ml_other_Y = [];
+    var ml_fish_Y_LSTM  = [];
+    var ml_total_Y_LSTM  = [];
+    var ml_rec_Y_LSTM  = [];
+    var ml_tugtow_Y_LSTM  = [];
+    var ml_pass_Y_LSTM  = [];
+    var ml_cargo_Y_LSTM  = [];
+    var ml_tanker_Y_LSTM  = [];
+    var ml_other_Y_LSTM  = [];
 
     d3.json("/get-latlon", function(error, data) {
         var latlon = data;
@@ -148,135 +148,159 @@ d3.json("/get-data", function(error, data) {
         
     
 
-    d3.json("/get-ml-total", function(error, data){
-    var data_ml = JSON.parse(`${data}`)
-    for (i in data_ml["X_Test"]) {
-        ml_total_X.push(dates[data_ml["X_Test"][i]]);
+    d3.json("/get-lstm-total", function(error, data){
+    var data_lstm = JSON.parse(`${data}`)
+    for (i in data_lstm["index"]) {
+        ml_total_X_LSTM.push(dates[data_lstm["index"][i]]);
     }
-    for (i in data_ml["Y_Pred"]) {
-        ml_total_Y.push(data_ml["Y_Pred"][i]);
+    for (var ind = 1; ind < 30; ind++){
+        ml_total_X_LSTM.push(ind);
+    }
+    for (i in data_lstm["0"]) {
+        ml_total_Y_LSTM.push(data_lstm["0"][i]);
     }
 
-    d3.json("/get-ml-fish", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_fish_X.push(dates[data_ml["X_Test"][i]]);
+    d3.json("/get-lstm-fish", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_fish_X_LSTM.push(dates[data_lstm["index"][i]]);
         }
-        for (i in data_ml["Y_Pred"]) {
-            ml_fish_Y.push(data_ml["Y_Pred"][i]);
+        for (var ind = 1; ind < 30; ind++){
+            ml_fish_X_LSTM.push(ind);
         }
-    
-
-    d3.json("/get-ml-tugtow", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_tugtow_X.push(dates[data_ml["X_Test"][i]]);
-        }
-        for (i in data_ml["Y_Pred"]) {
-            ml_tugtow_Y.push(data_ml["Y_Pred"][i]);
+        for (i in data_lstm["0"]) {
+            ml_fish_Y_LSTM.push(data_lstm["0"][i]);
         }
     
 
-    d3.json("/get-ml-rec", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_rec_X.push(dates[data_ml["X_Test"][i]]);
+    d3.json("/get-lstm-tugtow", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_tugtow_X_LSTM.push(dates[data_lstm["index"][i]]);
         }
-        for (i in data_ml["Y_Pred"]) {
-            ml_rec_Y.push(data_ml["Y_Pred"][i]);
+        for (var ind = 1; ind < 30; ind++){
+            ml_tugtow_X_LSTM.push(ind);
         }
-    
-
-    d3.json("/get-ml-pass", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_pass_X.push(dates[data_ml["X_Test"][i]]);
-        }
-        for (i in data_ml["Y_Pred"]) {
-            ml_pass_Y.push(data_ml["Y_Pred"][i]);
+        for (i in data_lstm["0"]) {
+            ml_tugtow_Y_LSTM.push(data_lstm["0"][i]);
         }
     
 
-    d3.json("/get-ml-cargo", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_cargo_X.push(dates[data_ml["X_Test"][i]]);
+    d3.json("/get-lstm-rec", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_rec_X_LSTM.push(dates[data_lstm["index"][i]]);
         }
-        for (i in data_ml["Y_Pred"]) {
-            ml_cargo_Y.push(data_ml["Y_Pred"][i]);
+        for (var ind = 1; ind < 30; ind++){
+            ml_rec_X_LSTM.push(ind);
         }
-    
-
-    d3.json("/get-ml-tanker", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_tanker_X.push(dates[data_ml["X_Test"][i]]);
-        }
-        for (i in data_ml["Y_Pred"]) {
-            ml_tanker_Y.push(data_ml["Y_Pred"][i]);
+        for (i in data_lstm["0"]) {
+            ml_rec_Y_LSTM.push(data_lstm["0"][i]);
         }
     
 
-    d3.json("/get-ml-other", function(error, data){
-        var data_ml = JSON.parse(`${data}`)
-        for (i in data_ml["X_Test"]) {
-            ml_other_X.push(dates[data_ml["X_Test"][i]]);
+    d3.json("/get-lstm-pass", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_pass_X_LSTM.push(dates[data_lstm["index"][i]]);
         }
-        for (i in data_ml["Y_Pred"]) {
-            ml_other_Y.push(data_ml["Y_Pred"][i]);
+        for (var ind = 1; ind < 30; ind++){
+            ml_pass_X_LSTM.push(ind);
+        }
+        for (i in data_lstm["0"]) {
+            ml_pass_Y_LSTM.push(data_lstm["0"][i]);
         }
     
 
-    var trace_all = {
+    d3.json("/get-lstm-cargo", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_cargo_X_LSTM.push(dates[data_lstm["index"][i]]);
+        }
+        for (var ind = 1; ind < 30; ind++){
+            ml_cargo_X_LSTM.push(ind);
+        }
+        for (i in data_lstm["0"]) {
+            ml_cargo_Y_LSTM.push(data_lstm["0"][i]);
+        }
+    
+
+    d3.json("/get-lstm-tanker", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_tanker_X_LSTM.push(dates[data_lstm["index"][i]]);
+        }
+        for (var ind = 1; ind < 30; ind++){
+            ml_tanker_X_LSTM.push(ind);
+        }
+        for (i in data_lstm["0"]) {
+            ml_tanker_Y_LSTM.push(data_lstm["0"][i]);
+        }
+    
+
+    d3.json("/get-lstm-other", function(error, data){
+        var data_lstm = JSON.parse(`${data}`)
+        for (i in data_lstm["index"]) {
+            ml_other_X_LSTM.push(dates[data_lstm["index"][i]]);
+        }
+        for (var ind = 1; ind < 30; ind++){
+            ml_other_X_LSTM.push(ind);
+        }
+        for (i in data_lstm["0"]) {
+            ml_other_Y_LSTM.push(data_lstm["0"][i]);
+        }
+    
+
+    var trace_all_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: all,
         mode: 'lines'
     }
     
-    var trace_fish = {
+    var trace_fish_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: fish,
         mode: 'lines'
     }
 
-    var trace_tug = {
+    var trace_tug_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: tug,
         mode: 'lines'
     }
 
-    var trace_rec = {
+    var trace_rec_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: rec,
         mode: 'lines'
     }
 
-    var trace_pass = {
+    var trace_pass_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: pass,
         mode: 'lines'
     }
 
-    var trace_car = {
+    var trace_car_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: cargo,
         mode: 'lines'
     }
 
-    var trace_tank = {
+    var trace_tank_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: tanker,
         mode: 'lines'
     }
 
-    var trace_other = {
+    var trace_other_LSTM  = {
         name: "Unique Vessels",
         x: dates,
         y: other,
@@ -290,233 +314,161 @@ d3.json("/get-data", function(error, data) {
         mode: 'lines'
     }
 
-    layout_all = {
+    layout_all_LSTM  = {
         title: "All Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Total"]["Slope"]}X + ${metrics["Total"]["Intercept"]}, R2: ${metrics["Total"]["r2"]}, Mean-Squared Error: ${metrics["Total"]["MSE"]}, Mean-Absolute Error: ${metrics["Total"]["MAE"]}`,
-            showarrow: false}]
+        
             
     }
 
-    layout_fish = {
+    layout_fish_LSTM  = {
         title: "Fishing Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Fishing"]["Slope"]}X + ${metrics["Fishing"]["Intercept"]}, R2: ${metrics["Fishing"]["r2"]}, Mean-Squared Error: ${metrics["Fishing"]["MSE"]}, Mean-Absolute Error: ${metrics["Fishing"]["MAE"]}`,
-            showarrow: false}]
+        
 
     }
 
-    layout_tug = {
+    layout_tug_LSTM  = {
         title: "Tug and Tow Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["TugTow"]["Slope"]}X + ${metrics["TugTow"]["Intercept"]}, R2: ${metrics["TugTow"]["r2"]}, Mean-Squared Error: ${metrics["TugTow"]["MSE"]}, Mean-Absolute Error: ${metrics["TugTow"]["MAE"]}`,
-            showarrow: false}]
+        
 
     }
 
-    layout_rec = {
+    layout_rec_LSTM  = {
         title: "Recreational Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Recreational"]["Slope"]}X + ${metrics["Recreational"]["Intercept"]}, R2: ${metrics["Recreational"]["r2"]}, Mean-Squared Error: ${metrics["Recreational"]["MSE"]}, Mean-Absolute Error: ${metrics["Recreational"]["MAE"]}`,
-            showarrow: false}]
+        
 
     }
 
-    layout_pass = {
+    layout_pass_LSTM  = {
         title: "Passenger Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Passenger"]["Slope"]}X + ${metrics["Passenger"]["Intercept"]}, R2: ${metrics["Passenger"]["r2"]}, Mean-Squared Error: ${metrics["Passenger"]["MSE"]}, Mean-Absolute Error: ${metrics["Passenger"]["MAE"]}`,
-            showarrow: false}]
+        
 
     }
 
-    layout_car = {
+    layout_car_LSTM  = {
         title: "Cargo Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Cargo"]["Slope"]}X + ${metrics["Cargo"]["Intercept"]}, R2: ${metrics["Cargo"]["r2"]}, Mean-Squared Error: ${metrics["Cargo"]["MSE"]}, Mean-Absolute Error: ${metrics["Cargo"]["MAE"]}`,
-            showarrow: false}]
+        
 
     }
 
-    layout_tank = {
+    layout_tank_LSTM  = {
         title: "Tanker Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
-        paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Tanker"]["Slope"]}X + ${metrics["Tanker"]["Intercept"]}, R2: ${metrics["Tanker"]["r2"]}, Mean-Squared Error: ${metrics["Tanker"]["MSE"]}, Mean-Absolute Error: ${metrics["Tanker"]["MAE"]}`,
-            showarrow: false}]
+        paper_bgcolor: "#EBEBEE"
+        
 
     }
 
-    layout_other = {
+    layout_other_LSTM  = {
         title: "Other Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations:  [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Y=${metrics["Other"]["Slope"]}X + ${metrics["Other"]["Intercept"]}, R2: ${metrics["Other"]["r2"]}, Mean-Squared Error: ${metrics["Other"]["MSE"]}, Mean-Absolute Error: ${metrics["Other"]["MAE"]}`,
-            showarrow: false}]
-
+       
     }
     
-    layout_unav = {
+    layout_unav_LSTM = {
         title: "Unavailable/Unidentified Vessels",
         xaxis: {type: "category", title: resolution},
         autosize: true,
         margin: {t:70, b:85, l:40, r:40},
         plot_bgcolor: "#CFD3E3",
         paper_bgcolor: "#EBEBEE",
-        annotations: [{
-            xref: 'paper',
-            yref: 'paper',
-            x: 1.2,
-            xanchor: 'right',
-            y: 1.05,
-            yanchor: 'bottom',
-            text: `Regression: Trendline: Y=${metrics["Unavailable"]["Slope"]}X + ${metrics["Unavailable"]["Intercept"]}`,
-            showarrow: false}]
+       
 
     }
 
-    var ml_fish_trace = {
-        name: "Trendline",
-        x: ml_fish_X,
-        y: ml_fish_Y
+    var ml_fish_trace_LSTM = {
+        name: "LSTM",
+        x: ml_fish_X_LSTM,
+        y: ml_fish_Y_LSTM
     };
 
-    var ml_total_trace = {
-        name: "Trendline",
-        x: ml_total_X,
-        y: ml_total_Y
+    var ml_total_trace_LSTM = {
+        name: "LSTM",
+        x: ml_total_X_LSTM,
+        y: ml_total_Y_LSTM
     };
 
-    var ml_rec_trace = {
-        name: "Trendline",
-        x: ml_rec_X,
-        y: ml_rec_Y
+    var ml_rec_trace_LSTM = {
+        name: "LSTM",
+        x: ml_rec_X_LSTM,
+        y: ml_rec_Y_LSTM
     };
 
-    var ml_tugtow_trace = {
-        name: "Trendline",
-        x: ml_tugtow_X,
-        y: ml_tugtow_Y
+    var ml_tugtow_trace_LSTM = {
+        name: "LSTM",
+        x: ml_tugtow_X_LSTM,
+        y: ml_tugtow_Y_LSTM
     };
 
-    var ml_pass_trace = {
-        name: "Trendline",
-        x: ml_pass_X,
-        y: ml_pass_Y
+    var ml_pass_trace_LSTM = {
+        name: "LSTM",
+        x: ml_pass_X_LSTM,
+        y: ml_pass_Y_LSTM
     };
 
-    var ml_cargo_trace = {
-        name: "Trendline",
-        x: ml_cargo_X,
-        y: ml_cargo_Y
+    var ml_cargo_trace_LSTM = {
+        name: "LSTM",
+        x: ml_cargo_X_LSTM,
+        y: ml_cargo_Y_LSTM
     };
 
-    var ml_tanker_trace = {
-        name: "Trendline",
-        x: ml_tanker_X,
-        y: ml_tanker_Y
+    var ml_tanker_trace_LSTM = {
+        name: "LSTM",
+        x: ml_tanker_X_LSTM,
+        y: ml_tanker_Y_LSTM
     };
 
-    var ml_other_trace = {
-        name: "Trendline",
-        x: ml_other_X,
-        y: ml_other_Y
+    var ml_other_trace_LSTM = {
+        name: "LSTM",
+        x: ml_other_X_LSTM,
+        y: ml_other_Y_LSTM
     };
 
-    Plotly.newPlot("All-Vessels", [trace_all, ml_total_trace], layout_all);
-    Plotly.newPlot("Fishing-Vessels", [trace_fish, ml_fish_trace], layout_fish);
-    Plotly.newPlot("TugTow-Vessels", [trace_tug, ml_tugtow_trace], layout_tug);
-    Plotly.newPlot("Rec-Vessels", [trace_rec, ml_rec_trace], layout_rec);
-    Plotly.newPlot("Passenger-Vessels", [trace_pass, ml_pass_trace], layout_pass);
-    Plotly.newPlot("Cargo-Vessels", [trace_car, ml_cargo_trace], layout_car);
-    Plotly.newPlot("Tanker-Vessels", [trace_tank, ml_tanker_trace], layout_tank);
-    Plotly.newPlot("Other-Vessels", [trace_other, ml_other_trace], layout_other);
+    Plotly.purge("All-Vessels");
+    Plotly.newPlot("All-Vessels", [trace_all_LSTM , ml_total_trace_LSTM], layout_all_LSTM);
+    Plotly.newPlot("Fishing-Vessels", [trace_fish_LSTM , ml_fish_trace_LSTM], layout_fish_LSTM);
+    Plotly.newPlot("TugTow-Vessels", [trace_tug_LSTM , ml_tugtow_trace_LSTM], layout_tug_LSTM);
+    Plotly.newPlot("Rec-Vessels", [trace_rec_LSTM , ml_rec_trace_LSTM], layout_rec_LSTM);
+    Plotly.newPlot("Passenger-Vessels", [trace_pass_LSTM , ml_pass_trace_LSTM], layout_pass_LSTM);
+    Plotly.newPlot("Cargo-Vessels", [trace_car_LSTM , ml_cargo_trace_LSTM], layout_car_LSTM);
+    Plotly.newPlot("Tanker-Vessels", [trace_tank_LSTM , ml_tanker_trace_LSTM], layout_tank_LSTM);
+    Plotly.newPlot("Other-Vessels", [trace_other_LSTM , ml_other_trace_LSTM], layout_other_LSTM);
 })})})})})})})})})});
 
 var trace_pie = {

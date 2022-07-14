@@ -7,7 +7,11 @@ import config2
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error,mean_squared_error, r2_score
-
+from keras.models import Sequential
+from keras.layers import Dense, LSTM, Dropout
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 
 ### Call Password File
@@ -30,15 +34,15 @@ class DataStore():
     Unavailable=None,
     Total=None,
     Metrics=None
-    # LSTM_Fishing = None,
-    # LSTM_TugTow = None,
-    # LSTM_Recreational = None,
-    # LSTM_Passenger = None,
-    # LSTM_Cargo = None,
-    # LSTM_Tanker = None,
-    # LSTM_Other = None,
-    # LSTM_Unavailable = None,
-    # LSTM_Total = None
+    LSTM_Fishing = None,
+    LSTM_TugTow = None,
+    LSTM_Recreational = None,
+    LSTM_Passenger = None,
+    LSTM_Cargo = None,
+    LSTM_Tanker = None,
+    LSTM_Other = None,
+    LSTM_Unavailable = None,
+    LSTM_Total = None
 
 ### make Datastore callable
 aisData = DataStore()
@@ -225,180 +229,178 @@ def homepage():
 ### Define the LSTM Function
 
 # #### ADD DANNY's FULL STYLE, ADD DATASTORE FOR EACH, ROUTE FOR EACH
-#         # Fishing
-#         ais_fishing_df = AIS_df.loc[:, ['Fishing']]
-#
-#         # TugTow
-#         ais_tugtow_df = AIS_df.loc[:, ['TugTow']]
-#
-#         # Recreational
-#         ais_recreational_df = AIS_df.loc[:, ['Recreational']]
-#
-#         # Passenger
-#         ais_passenger_df = AIS_df.loc[:, ['Passenger']]
-#
-#         # Cargo
-#         ais_cargo_df = AIS_df.loc[:, ['Cargo']]
-#
-#         # Tanker
-#         ais_tanker_df = AIS_df.loc[:, ['Tanker']]
-#
-#         # Other
-#         ais_other_df = AIS_df.loc[:, ['Other']]
-#
-#         # Unavailable
-#         ais_unavailable_df = AIS_df.loc[:, ['Unavailable']]
-#
-#         # Total
-#         ais_total_df = AIS_df.loc[:, ['Total']]
-#
-#         def BoatModel(x, name):
-#
-# ### Convert the DataFrame into an array, and change the type to floats for the Neural Network
-#             data = x.values
-#             data = data.astype('float32')
-#
-#     ### Normalize the data by using a scaler
-#             scaler = MinMaxScaler(feature_range=(0, 1))
-#             data = scaler.fit_transform(data)
-#
-#     ### Split our data into training and testing using slicing, and check the length
-#
-#     ### Determin the length of what our split will be
-#             data_split = int(len(data) * 0.75)
-#
-#     ### Slice the data and print the results
-#             train, test = data[:data_split], data[data_split:]
-#
-#     ### Make a function that creates both X and y values for the data
-#             def create_dataset(dataset, look_back=1):
-#                 dataX, dataY = [], []
-#                 for i in range(len(dataset) - look_back - 1):
-#                     a = dataset[i:(i + look_back), 0]
-#                     dataX.append(a)
-#                     dataY.append(dataset[i + look_back, 0])
-#                 return np.array(dataX), np.array(dataY)
-#
-#     ### Define how much time we're looking into the past,
-#     ### and split our values into X=t and Y=t+1, where t is that time
-#             look_back = 1
-#             trainX, trainY = create_dataset(train, look_back)
-#             testX, testY = create_dataset(test, look_back)
-#
-#     ### Reshape the data to incorperate into the LSTM
-#             trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-#             testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-#
-#     ### Create and fit the LSTM network
-#             model = Sequential()
-#             model.add(LSTM(4, activation='relu', input_shape=(1, look_back)))
-#             model.add(Dense(2))
-#             model.add(Dense(1))
-#             model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse', 'mae', 'mape'])
-#             es = [EarlyStopping(monitor='loss', patience=15)]
-#             fit_model = model.fit(trainX, trainY, epochs=100, validation_split=0.3, batch_size=1, verbose=2,
-#                                   callbacks=[es])
-#
-#     ### Make predictions
-#             trainPredict = fit_model.predict(trainX)
-#             testPredict = fit_model.predict(testX)
-#
-#     ### Invert the predictions to graph later
-#             trainPredict = scaler.inverse_transform(trainPredict)
-#             trainY = scaler.inverse_transform([trainY])
-#             testPredict = scaler.inverse_transform(testPredict)
-#             testY = scaler.inverse_transform([testY])
-#
-#             ### Shift the train predictions for plotting
-#             trainPredictPlot = np.empty_like(data)
-#             trainPredictPlot[:, :] = np.nan
-#             trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
-#
-#     ### Shift the test predictions for plotting
-#             testPredictPlot = np.empty_like(data)
-#             testPredictPlot[:, :] = np.nan
-#             testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(data) - 1, :] = testPredict
-#
-#     ### Create a function for future predictions
-#
-#             def predict(num_prediction, model):
-#                 prediction_list = data[-look_back:]
-#
-#                 for _ in range(num_prediction):
-#                     x = prediction_list[-look_back:]
-#                     x = x.reshape((1, look_back, 1))
-#                     out = model.predict(x)[0][0]
-#                     prediction_list = np.append(prediction_list, out)
-#                 prediction_list = prediction_list[look_back - 1:]
-#
-#                 return prediction_list
-#
-#     ### Predict the next 30 days of data
-#             forecast = predict(30, model)
-#             forecast = forecast.reshape((-1, 1))
-#             forecast = scaler.inverse_transform(forecast)
-#
-#     ### Plot the prediction on a graph
-#
-#             future = len(data) + len(forecast)
-#
-#             futurePlot = np.zeros((future, 1))
-#             futurePlot[:, :] = np.nan
-#             futurePlot[-len(forecast):] = forecast
-#
-#     ### Create single dataframe of test/train/predict values
-#
-#             train_data = trainPredictPlot
-#             test_data = testPredictPlot
-#             predict_plot = futurePlot
-#
-#             train_test = pd.DataFrame(train_data.reshape(-1))
-#             test_test = pd.DataFrame(test_data.reshape(-1))
-#             predict_test = pd.DataFrame(predict_plot.reshape(-1))
-#
-#             for ind in train_test.index:
-#                 if train_test[0][ind] != train_test[0][ind]:
-#                     train_test.iloc[ind] = test_test[0][ind]
-#
-#             for ind in predict_test.index:
-#                 if predict_test[0][ind] == predict_test[0][ind]:
-#                     train_test = train_test.append(pd.DataFrame({0: [predict_test[0][ind]]}, index=[ind]))
-#
-#
-#             if name == "Fishing":
-#                 aisData.LSTM_Fishing = jsonify(train_test.to_json())
-#             elif name == "TugTow":
-#                 aisData.LSTM_TugTow = jsonify(train_test.to_json())
-#             elif name == "Recreational":
-#                 aisData.LSTM_Recreational = jsonify(train_test.to_json())
-#             elif name == "Passenger":
-#                 aisData.LSTM_Passenger = jsonify(train_test.to_json())
-#             elif name == "Cargo":
-#                 aisData.LSTM_Cargo = jsonify(train_test.to_json())
-#             elif name == "Tanker":
-#                 aisData.LSTM_Tanker = jsonify(train_test.to_json())
-#             elif name == "Other":
-#                 aisData.LSTM_Other = jsonify(train_test.to_json())
-#             elif name == "Unavailable":
-#                 aisData.LSTM_Unavailable = jsonify(train_test.to_json())
-#             elif name == "Total":
-#                 aisData.LSTM_Total = jsonify(train_test.to_json())
-#
-#             return train_test
+        # Fishing
+        ais_fishing_df = AIS_df.loc[:, ['Fishing']]
 
+        # TugTow
+        ais_tugtow_df = AIS_df.loc[:, ['TugTow']]
+
+        # Recreational
+        ais_recreational_df = AIS_df.loc[:, ['Recreational']]
+
+        # Passenger
+        ais_passenger_df = AIS_df.loc[:, ['Passenger']]
+
+        # Cargo
+        ais_cargo_df = AIS_df.loc[:, ['Cargo']]
+
+        # Tanker
+        ais_tanker_df = AIS_df.loc[:, ['Tanker']]
+
+        # Other
+        ais_other_df = AIS_df.loc[:, ['Other']]
+
+        # Unavailable
+        ais_unavailable_df = AIS_df.loc[:, ['Unavailable']]
+
+        # Total
+        ais_total_df = AIS_df.loc[:, ['Total']]
+        def BoatModel(x, name):
+
+            ### Convert the DataFrame into an array, and change the type to floats for the Neural Network
+            data = x.values
+            data = data.astype('float32')
+
+            ### Normalize the data by using a scaler
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            data = scaler.fit_transform(data)
+
+            ### Split our data into training and testing using slicing, and check the length
+
+            ### Determin the length of what our split will be
+            data_split = int(len(data) * 0.75)
+
+            ### Slice the data and print the results
+            train, test = data[:data_split], data[data_split:]
+
+        ### Make a function that creates both X and y values for the data
+            def create_dataset(dataset, look_back=1):
+                dataX, dataY = [], []
+                for i in range(len(dataset) - look_back - 1):
+                    a = dataset[i:(i + look_back), 0]
+                    dataX.append(a)
+                    dataY.append(dataset[i + look_back, 0])
+                return np.array(dataX), np.array(dataY)
+
+        ### Define how much time we're looking into the past,
+        ### and split our values into X=t and Y=t+1, where t is that time
+            look_back = 1
+            trainX, trainY = create_dataset(train, look_back)
+            testX, testY = create_dataset(test, look_back)
+
+            ### Reshape the data to incorperate into the LSTM
+            trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
+            testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+
+            ### Create and fit the LSTM network
+            model = Sequential()
+            model.add(LSTM(4, activation='tanh', input_shape=(1, look_back)))
+            model.add(Dense(2))
+            model.add(Dense(1))
+            model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse', 'mae', 'mape'])
+            es = [EarlyStopping(monitor='loss', patience=15)]
+            fit_model = model.fit(trainX, trainY, epochs=100, validation_split=0.3, batch_size=1, verbose=0,
+                                  callbacks=[es])
+
+            ### Make predictions
+            trainPredict = model.predict(trainX)
+            testPredict = model.predict(testX)
+
+            ### Invert the predictions to graph later
+            trainPredict = scaler.inverse_transform(trainPredict)
+            trainY = scaler.inverse_transform([trainY])
+            testPredict = scaler.inverse_transform(testPredict)
+            testY = scaler.inverse_transform([testY])
+
+            ### Shift the train predictions for plotting
+            trainPredictPlot = np.empty_like(data)
+            trainPredictPlot[:, :] = np.nan
+            trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
+
+            ### Shift the test predictions for plotting
+            testPredictPlot = np.empty_like(data)
+            testPredictPlot[:, :] = np.nan
+            testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(data) - 1, :] = testPredict
+
+            ### Create a function for future predictions
+
+            def predict(num_prediction, model):
+                prediction_list = data[-look_back:]
+
+                for _ in range(num_prediction):
+                    x = prediction_list[-look_back:]
+                    x = x.reshape((1, look_back, 1))
+                    out = model.predict(x)[0][0]
+                    prediction_list = np.append(prediction_list, out)
+                prediction_list = prediction_list[look_back - 1:]
+
+                return prediction_list
+
+            ### Predict the next 30 days of data
+            forecast = predict(30, model)
+            forecast = forecast.reshape((-1, 1))
+            forecast = scaler.inverse_transform(forecast)
+
+        ### Plot the prediction on a graph
+
+            future = len(data) + len(forecast)
+
+            futurePlot = np.zeros((future, 1))
+            futurePlot[:, :] = np.nan
+            futurePlot[-len(forecast):] = forecast
+
+        ### Create single dataframe of test/train/predict values
+
+            train_data = trainPredictPlot
+            test_data = testPredictPlot
+            predict_plot = futurePlot
+
+            train_test = pd.DataFrame(train_data.reshape(-1))
+            test_test = pd.DataFrame(test_data.reshape(-1))
+            predict_test = pd.DataFrame(predict_plot.reshape(-1))
+
+            for ind in train_test.index:
+                if train_test[0][ind] != train_test[0][ind]:
+                    train_test.iloc[ind] = test_test[0][ind]
+
+            for ind in predict_test.index:
+                if predict_test[0][ind] == predict_test[0][ind]:
+                    train_test = train_test.append(pd.DataFrame({0: [predict_test[0][ind]]}, index=[ind]))
+            train_test.reset_index(inplace=True)
+
+            if name == "Fishing":
+                aisData.LSTM_Fishing = jsonify(train_test.to_json())
+            elif name == "TugTow":
+                aisData.LSTM_TugTow = jsonify(train_test.to_json())
+            elif name == "Recreational":
+                aisData.LSTM_Recreational = jsonify(train_test.to_json())
+            elif name == "Passenger":
+                aisData.LSTM_Passenger = jsonify(train_test.to_json())
+            elif name == "Cargo":
+                aisData.LSTM_Cargo = jsonify(train_test.to_json())
+            elif name == "Tanker":
+                aisData.LSTM_Tanker = jsonify(train_test.to_json())
+            elif name == "Other":
+                aisData.LSTM_Other = jsonify(train_test.to_json())
+            elif name == "Unavailable":
+                aisData.LSTM_Unavailable = jsonify(train_test.to_json())
+            elif name == "Total":
+                aisData.LSTM_Total = jsonify(train_test.to_json())
+
+            return train_test
 ### Call LinearRegression Function
         ais_graphs()
 
-# ### Call LSTM Functions
-#         BoatModel(ais_fishing_df, "Fishing")
-#         BoatModel(ais_recreational_df, "Recreational")
-#         BoatModel(ais_tugtow_df, "TugTow")
-#         BoatModel(ais_passenger_df, "Passenger")
-#         BoatModel(ais_cargo_df, "Cargo")
-#         BoatModel(ais_tanker_df, "Tanker")
-#         BoatModel(ais_other_df, "Other")
-#         BoatModel(ais_total_df, "Total")
-#         print(aisData.LSTM_Total)
+# # ### Call LSTM Functions
+        BoatModel(ais_fishing_df, "Fishing")
+        BoatModel(ais_recreational_df, "Recreational")
+        BoatModel(ais_tugtow_df, "TugTow")
+        BoatModel(ais_passenger_df, "Passenger")
+        BoatModel(ais_cargo_df, "Cargo")
+        BoatModel(ais_tanker_df, "Tanker")
+        BoatModel(ais_other_df, "Other")
+        BoatModel(ais_total_df, "Total")
+        print(aisData.LSTM_Total)
 
 ### Assign output metrics dict to the DataStore
         aisData.Metrics = jsonify(metrics)
@@ -459,39 +461,39 @@ def ml_other():
 def ml_total():
     return aisData.Total
 
-# @app.route("/get-lstm-fish")
-# def lstm_fish():
-#     return aisData.LSTM_Fishing
-#
-# @app.route("/get-lstm-tugtow")
-# def lstm_tugtow():
-#     return aisData.LSTM_TugTow
-#
-# @app.route("/get-lstm-rec")
-# def lstm_rec():
-#     return aisData.LSTM_Recreational
-#
-# @app.route("/get-lstm-pass")
-# def lstm_pass():
-#     return aisData.LSTM_Passenger
-#
-# @app.route("/get-lstm-cargo")
-# def lstm_cargo():
-#     return aisData.LSTM_Cargo
-#
-# @app.route("/get-lstm-tanker")
-# def lstm_tanker():
-#     return aisData.LSTM_Tanker
-#
-# @app.route("/get-lstm-other")
-# def lstm_other():
-#     return aisData.LSTM_Other
-#
-# @app.route("/get-lstm-total")
-# def lstm_total():
-#     return aisData.LSTM_Total
+@app.route("/get-lstm-fish")
+def lstm_fish():
+    return aisData.LSTM_Fishing
+
+@app.route("/get-lstm-tugtow")
+def lstm_tugtow():
+    return aisData.LSTM_TugTow
+
+@app.route("/get-lstm-rec")
+def lstm_rec():
+    return aisData.LSTM_Recreational
+
+@app.route("/get-lstm-pass")
+def lstm_pass():
+    return aisData.LSTM_Passenger
+
+@app.route("/get-lstm-cargo")
+def lstm_cargo():
+    return aisData.LSTM_Cargo
+
+@app.route("/get-lstm-tanker")
+def lstm_tanker():
+    return aisData.LSTM_Tanker
+
+@app.route("/get-lstm-other")
+def lstm_other():
+    return aisData.LSTM_Other
+
+@app.route("/get-lstm-total")
+def lstm_total():
+    return aisData.LSTM_Total
 
 if __name__ == '__main__':
     # app.secret_key = 'testkey2'
     # app.config['SESSION_TYPE'] = 'sqlalchemy'
-    app.run(debug=True)
+    app.run(debug=False)
