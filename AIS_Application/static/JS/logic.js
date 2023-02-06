@@ -1,3 +1,10 @@
+// CREATE LOADING BUTTON
+const theButton = document.querySelector(".button");
+
+theButton.addEventListener("click", () => {
+    theButton.classList.add("button--loading");
+});
+
 // CREATE MAP LAYER
 let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -11,25 +18,25 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/
 // DEFINE MAP AND SET CENTER TO SELECTED PORT
 var map = L.map("map", {
     center: [37.75, -122.3],
-    zoom: 8,
+    zoom: 5,
     layers: [satelliteStreets]
 });
 
 // SET MARKERS AND DRAG FUNCTIONS
-var marker1 = L.marker([38.2, -123.3], {
+var marker1 = L.marker([42, -125.1], {
     draggable: true,
     title: "1st"
     }).addTo(map);
 
-var marker = L.marker([37.2, -121.3], {
+var marker = L.marker([32.5, -116.7], {
     draggable: true,
     title: "2nd"
     }).addTo(map);
 
-var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false}).addTo(map);
+var searchExtentSF = L.rectangle([[42, -125.1], [32.5, -116.7]], {color: "blue", weight: 1.5, fill: false}).addTo(map);
 
-var latlon1 = {lat: 38.2, lng: -123.3};
-var latlon2 = {lat: 37.2, lng: -121.3};
+var latlon1 = {lat: 42, lng: -125.1};
+var latlon2 = {lat: 32.5, lng: -116.7};
 
 var dragger1 = 0;
 var dragger2 = 0;
@@ -60,7 +67,7 @@ marker.on('dragend', function (e) {
             map.removeLayer(layer);
         }
         var searchArea = L.rectangle([latlon1, latlon2], {color: "red", weight: 2, fill: false});
-        var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false});
+        var searchExtentSF = L.rectangle([[42, -125.1], [32.5, -116.7]], {color: "blue", weight: 1.5, fill: false});
         searchArea.addTo(map);
         searchExtentSF.addTo(map);
 });
@@ -95,7 +102,7 @@ marker1.on('dragend', function (e) {
             map.removeLayer(layer);
         }
         var searchArea = L.rectangle([latlon1, latlon2], {color: "red", weight: 2, fill: false});
-        var searchExtentSF = L.rectangle([[38.2, -123.3], [37.2, -121.3]], {color: "blue", weight: 1.5, fill: false});
+        var searchExtentSF = L.rectangle([[42.036, -125.108], [32.513, -116.693]], {color: "blue", weight: 1.5, fill: false});
         searchArea.addTo(map);
         searchExtentSF.addTo(map);
         
@@ -138,7 +145,7 @@ function init() {
     var divElement3 = document.getElementById("area-desc");
 
     var content1 = document.createTextNode("Please press 'submit' once the desired search area appears on the map.");
-    var content2 = document.createTextNode("The red box defines the search area. It appears after both markers have been moved.");
+    var content2 = document.createTextNode("The red box defines the search area.");
     var content3 = document.createTextNode("The blue box defines the search extent. This is the area limit to the data.");
 
     divElement1.innerHTML = "";
