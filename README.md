@@ -8,7 +8,7 @@ The topic we selected is seeing which types of maritime vessels use various wate
 
 ### Reason We Selected the Topic
 
-We believe this is an interesting topic with lots of practical applications. By viewing the type of traffic in specific waterways, we can see exactly what kinds of permits need to be given out for ships to travel. This will lead to a more streamlined process of distributing these permits, especially for event permits that people will need to acquire in advance. It can also help see if current channels are adequate to handle the flow and type of traffic in them, as well as determine a need for new channels. Lastly, it can help track enviromental impact for each channel, as one can calculate the emissions output from the amount of ships going through each channel.
+We believe this is an interesting topic with lots of practical applications. By viewing the type of traffic in specific waterways, we can see exactly what kinds of permits need to be given out for ships to travel. This will lead to a more streamlined process of distributing these permits, especially for event permits that people will need to acquire in advance. It can also help see if current channels are adequate to handle the flow and type of traffic in them, as well as determine a need for new channels. Lastly, it can help track environmental impact for each channel, as one can calculate the emissions output from the amount of ships going through each channel.
 
 ### Description of the Source of Data
 
