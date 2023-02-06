@@ -10,67 +10,88 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://d3js.org/d3.v3.min.js"></script>
 </head>
-<body style="background-color: whitesmoke">
+<body style="background-color: white">
     <div class="wrapper">
-        <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
-            <a class="navbar-brand" href="/"><small>New Search</small></a>
-            <a class="navbar-brand" href="/time_series"><small>Time-Series Results</small></a>
+        <div class="container-fluid" style="color:white">
+            <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+                <a class="navbar-brand" href="/"><small>New Search</small></a>
+            </nav>
 
-        </nav>
-    </div>
-    <div style="background-color: rgb(133, 147, 149);">
-    <div id="jumbo" class="jumbotron col-lg-12">
-        <h1 style="color:whitesmoke; text-align: left; text-shadow: -2px -2px 0 black;">San Francisco AIS Vessel Efforts</h1>
-    </div>
-    </div>
-      <div class="container-fluid">
-        <div class="container-fluid">
-        <div class="row">
-            <p id="bounds"></p>
-        </div>
-        </div>
-        <div class="container-fluid">
-          <div class="row" id="heading-summary">
-              <div class="col-sm-3" id="summary" style="border: 2px solid black; color: black">
-                <h3>Summary:</h3><br>
-                <p id="summary"></p>
-              </div>
-              <div class="col-sm-5" id="map1" style="border: 2px solid black; color: black"></div>
-              <div class="col-sm-4" id="Pie-Chart"></div>
+            <div id="jumbo" class="jumbotron">
+                <h1 id="waterway" style="color:white; text-align: left; text-shadow: -2px -2px 0 black;"></h1>
             </div>
-          </div>
-          <div class="row" id="heading">
-              <div class="col-sm-6 mb-3" id="All-Vessels"></div>
-              <div class="col-sm-6 mb-3" id="Fishing-Vessels"></div>
-          </div>
-          <div class="row" id="heading">
-              <div class="col-sm-6 mb-3" id="TugTow-Vessels"></div>
-              <div class="col-sm-6 mb-3" id="Rec-Vessels"></div>
-          </div>
-          <div class="row" id="heading">
-              <div class="col-sm-6 mb-3" id="Passenger-Vessels"></div>
-              <div class="col-sm-6 mb-3" id="Cargo-Vessels"></div>
-          </div>
-          <div class="row" id="heading">
-              <div class="col-sm-6 mb-3" id="Tanker-Vessels"></div>
-              <div class="col-sm-6 mb-3" id="Other-Vessels"></div>
-          </div>
-          <div class="row" id="heading">
-              <div class="col-sm-6" id="Unav-Vessels"></div>
-          </div>
-      </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <!-- <script src="test_list.json"></script> -->
-    <script src="static/JS/config.js"></script>
-    <script src="static/JS/display.js"></script>
-    <!-- <script src="app.py"></script> -->
-       <!--Jquery Cdn -->
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 
+            <div class="container" style="color:white">
+
+                <div class="row">
+                    <p id="bounds" style="color: black"></p>
+                </div>
+
+                <div class="row" id="heading-summary">
+                    <div class="col-6" id="map1" style="border: 2px solid black; color: black; width: 100%"></div>
+                    <div class="col-6" id="Pie-Chart" style="width: 100%"></div>
+                </div>
+
+                <div class="row">
+                    <div style="border: 2px solid black; color: black">
+                        <p id="summary"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagebreak"> </div>
+
+                <div class="row" id="heading">
+                    <div class="col-6" id="All-Vessels" style="width: 100%"></div>
+                    <div class="col-6" id="Fishing-Vessels" style="width: 100%"></div>
+                </div>
+
+                <div class="row" id="heading">
+                    <div class="col-6" id="TugTow-Vessels" style="width: 100%"></div>
+                    <div class="col-6" id="Rec-Vessels" style="width: 100%"></div>
+                </div>
+
+                <div class="row" id="heading">
+                    <div class="col-6" id="Passenger-Vessels" style="width: 100%"></div>
+                    <div class="col-6" id="Cargo-Vessels" style="width: 100%"></div>
+                </div>
+
+            <div class="pagebreak"> </div>
+
+                <div class="row" id="heading">
+                    <div class="col-6" id="Tanker-Vessels" style="width: 100%"></div>
+                    <div class="col-6" id="Other-Vessels" style="width: 100%"></div>
+                </div>
+
+                <div class="row" id="heading">
+                    <div id="Vessel-Len" style="width: 100%"></div>
+                </div>
+
+                <div class="row" id="heading">
+                    <div id="Vessel-Draft" style="width: 100%"></div>
+                </div>
+
+                <div class="row">
+                    <div style="border: 2px solid black; color: black">
+                        <p id="disclaimer"></p>
+                    </div>
+                </div>
+
+
+
+
+
+        </div>
+    </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="static/JS/config.js"></script>
+        <script src="static/JS/display.js"></script>
+           <!--Jquery Cdn -->
+        <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     </body>
 </html>

@@ -8,7 +8,7 @@
 }
 
 #heading {
-    height: 500px;
+    height: 480px;
 }
 
 #map1 {
@@ -16,7 +16,7 @@
 }
 
 #summary {
-    height: 590px;
+    height: 75px;
 }
 
 #Pie-Chart {
@@ -35,4 +35,68 @@
 
 .mb-4 {
     margin-top: 0px;
+}
+
+@media print {
+    .pagebreak { page-break-before: always; } /* page-break-after works, as well */
+}
+
+/*.fithw {*/
+/*!*height: 100vh;*!*/
+/*width: 100%;*/
+/*}*/
+
+/*body {*/
+/*    width: 8.5in;*/
+/*    height: 11in;*/
+/*}*/
+.button {
+  position: relative;
+  padding: 8px 16px;
+  background: #009579;
+  border: none;
+  outline: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.button:active {
+  background: #007a63;
+}
+
+.button__text {
+  font: bold 20px "Quicksand", san-serif;
+  color: #ffffff;
+  transition: all 0.2s;
+}
+
+.button--loading .button__text {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.button--loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border: 4px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: rotate(0turn);
+  }
+
+  to {
+    transform: rotate(1turn);
+  }
 }

@@ -1,21 +1,16 @@
 ### Import Dependencies
 import pandas as pd
-from flask import Response, url_for, Flask, flash, redirect, render_template, request, session, abort, jsonify
+from flask import Flask, render_template, request, jsonify
 import numpy as np
-import psycopg2
-import config2
+import sqlite3
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error,mean_squared_error, r2_score
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-
-
-### Call Password File
-password = config2.password
+from PyQt5.QtCore import *
+from PyQt5.QtWebEngineWidgets import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from threading import Timer as Tm
+import sys
 
 ### Initiate APP
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -33,19 +28,17 @@ class DataStore():
     Other=None,
     Unavailable=None,
     Total=None,
-    Metrics=None
-    LSTM_Fishing = None,
-    LSTM_TugTow = None,
-    LSTM_Recreational = None,
-    LSTM_Passenger = None,
-    LSTM_Cargo = None,
-    LSTM_Tanker = None,
-    LSTM_Other = None,
-    LSTM_Unavailable = None,
-    LSTM_Total = None
+    Metrics=None,
+    Len=None,
+    draft=None
 
 ### make Datastore callable
 aisData = DataStore()
+
+# set print value
+class print_val():
+    print_val = 0
+print_val = print_val()
 
 ### Homepage Route
 @app.route("/", methods=["GET", "POST"])
@@ -59,41 +52,84 @@ def homepage():
         data = request.get_json()
 
 ### Create connection to database
-        connection = psycopg2.connect(
-            database="postgres",
-            user="postgres",
-            password=password,
-            host="aisdb.c6lmgfjuy49v.us-west-1.rds.amazonaws.com",
-            port="5432")
+        out_db = "../ETL_Database/AIS_db.db"
+# ../ETL_Database/
+
+
+        connection = sqlite3.connect(out_db)
 
 ### Create cursor object for connection
-        cursor = connection.cursor()
+        cursor1 = connection.cursor()
+
+
+        cursor2 = connection.cursor()
+
+
+        cursor3 = connection.cursor()
+
+
 
 ### Execute Query based on JSON Object received from the POST request
-        cursor.execute(f'''
-                WITH location_search as (
-                    SELECT * FROM "ais_raw_data"
-                    WHERE ("LAT" BETWEEN {data["Bottom_Bound"]} AND {data["Top_Bound"]}) AND ("LON" BETWEEN {data["Left_Bound"]} AND {data["Right_Bound"]})),
+        cursor1.execute(f'''WITH location_search as (
+                SELECT strftime("{data["Resolution"]}", BaseDateTime) as datestamp, MMSI, VesselType
+                FROM ais_raw_data
+                WHERE LAT > {data["Bottom_Bound"]} AND LAT < {data["Top_Bound"]} AND LON > {data["Left_Bound"]} AND LON < {data["Right_Bound"]}),
+            
+                unique_vessels as (
+                SELECT DISTINCT datestamp, MMSI, VesselType
+                FROM location_search)
 
-                    "convert_query" as (
-                    SELECT to_char("BaseDateTime", '{data["Resolution"]}') as "date", "MMSI", "VesselType"
-                    FROM "location_search"),
+                SELECT datestamp, VesselType, Count(VesselType)
+                FROM unique_vessels
+                GROUP BY VesselType, datestamp;
+                ''')
 
-                    "unique_search" as (
-                    SELECT DISTINCT("date", "MMSI", "VesselType") as "test", "date", "VesselType" FROM "convert_query"
-                    GROUP BY "test", "date", "VesselType")
 
-                SELECT "date", "VesselType", Count("VesselType")
-                FROM unique_search
-                GROUP BY "date", "VesselType"
-                ORDER BY "date";
+        cursor2.execute(f'''
+                WITH bin_val AS (
+                SELECT DISTINCT MMSI, CAST((("length" * 3.28084)/25) AS INTEGER)*25 AS "len_bin"
+                FROM ais_raw_data
+                WHERE LAT > {data["Bottom_Bound"]} AND LAT < {data["Top_Bound"]} AND LON > {data["Left_Bound"]} AND LON < {data["Right_Bound"]}),
+
+                
+                unique_bin AS (SELECT DISTINCT MMSI, "len_bin"
+                FROM bin_val
+                WHERE "len_bin" >= 0)
+                
+                SELECT "len_bin", count("len_bin")
+                FROM unique_bin
+                GROUP BY "len_bin";
+                ''')
+
+
+        cursor3.execute(f'''
+                WITH bin_val AS (
+                SELECT DISTINCT MMSI, CAST((("Draft" * 3.28084)/2) AS INTEGER)*2 AS "dra_bin"
+                FROM ais_raw_data
+                WHERE LAT > {data["Bottom_Bound"]} AND LAT < {data["Top_Bound"]} AND LON > {data["Left_Bound"]} AND LON < {data["Right_Bound"]}),
+
+
+                unique_bin AS (SELECT DISTINCT MMSI, "dra_bin"
+                FROM bin_val
+                WHERE "dra_bin" >= 0)
+
+                SELECT "dra_bin", count("dra_bin")
+                FROM unique_bin
+                GROUP BY "dra_bin";
                 ''')
 
 ### Request the resulting table from the database
-        record = cursor.fetchall()
+        record_efforts = cursor1.fetchall()
+        record_len = cursor2.fetchall()
+        record_dr = cursor3.fetchall()
 
 ### Convert table to pandas Dataframe
-        data_df = pd.DataFrame(record, columns=["basedatetime", "vesseltype", "count"])
+        data_df = pd.DataFrame(record_efforts, columns=["basedatetime", "vesseltype", "count"])
+
+        len_df = pd.DataFrame(record_len, columns=["Len_Bin", "Len_Bin_Count"])
+
+        dra_df = pd.DataFrame(record_dr, columns=["Dra_Bin", "Dra_Bin_Count"])
+
 
 ### Set the index to the column BaseDateTime (all date intervals are unique based on search)
         data_df = data_df.set_index("basedatetime")
@@ -141,18 +177,22 @@ def homepage():
                 else:
                     AIS_df.loc[index, "Other"] += row[1]
 
+
 ### Reset the index of the dataframe to include the dates as a column, rename as 'Date'
+        AIS_df.sort_index(inplace=True)
         AIS_df.reset_index(inplace=True)
         AIS_df.rename(columns={'index': 'Date'}, inplace=True)
 
 ### Reset the index again to get a column counting each row (need integer for ML models, not dates)
         AIS_df.reset_index(inplace=True)
 
-### Define vessel types as an array to loop through in the models
-        types = ["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"]
-
 ### Assign raw enumerated data to the DataStore
         aisData.Index = jsonify(AIS_df.to_json(orient="index"))
+
+
+
+### Define vessel types as an array to loop through in the models
+        types = ["Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"]
 
 ### Create returnable object for route function
         dataset = aisData.Index
@@ -162,9 +202,6 @@ def homepage():
 
 ### create empty dictionary for the metrics from the LinearRegression model
         metrics = {}
-
-# ### Create empty dataframe for LSTM results
-#         train_test_df = pd.DataFrame()
 
 ### Define function to run LinearRegression model on all vessel types
         def ais_graphs():
@@ -177,31 +214,22 @@ def homepage():
                 y = AIS_df[boat_type]
     ### Define the x-axis data
                 X = AIS_df.drop(["Date", "Fishing", "TugTow", "Recreational", "Passenger", "Cargo", "Tanker", "Other", "Unavailable", "Total"], axis=1)
-    ### Randomly sample test, train datasets for the model
-                X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
     ### Call the model
                 model = LinearRegression()
     ### Fit the model with the training data
-                model.fit(X_train, y_train)
+                model.fit(X, y)
     ### Predict values based on the trained model
-                y_pred = model.predict(X_test)
-    ### Assign root mean squared error
-                MSE = mean_squared_error(y_true=y_test, y_pred=y_pred)
-    ### Assign mean absolute error
-                MAE = mean_absolute_error(y_true=y_test, y_pred=y_pred)
+                y_pred = model.predict(X)
     ### Assign x-intercept for the model trendline
                 X_int = model.intercept_
     ### Assign slope coefficient for the model trendline
                 Slope = model.coef_
-    ### Assign R2 value for the model
-                R2 = r2_score(y_true=y_test, y_pred=y_pred)
     ### Assign metrics to the dict created, round values to three decimal places
-                metrics[boat_type] = {"MSE": round(MSE, 3), "MAE": round(MAE, 3), "Slope": round(Slope[0], 3), "Intercept": round(X_int, 3), "r2": round(R2, 3)}
-
+                metrics[boat_type] = {"Slope": round(Slope[0], 3), "Intercept": round(X_int, 3)}
     ### Assign values to dataframe created
                 results["Y_Pred"] = y_pred
     ### Reset the index and drop the old column, to match test values to the predictions
-                results["X_Test"] = X_test.reset_index(drop=True)
+                results["X_Test"] = X.reset_index(drop=True)
     ### Sort by the x-axis values, reset index to make this the new order
                 results_sort = results.sort_values(by="X_Test").reset_index(drop=True)
     ### Push all results to the Datastore as a JSON Object
@@ -224,198 +252,62 @@ def homepage():
                 elif boat_type == "Total":
                     aisData.Total = jsonify(results_sort.to_json())
 
-
-
-### Define the LSTM Function
-
-# #### ADD DANNY's FULL STYLE, ADD DATASTORE FOR EACH, ROUTE FOR EACH
-        # Fishing
-        ais_fishing_df = AIS_df.loc[:, ['Fishing']]
-
-        # TugTow
-        ais_tugtow_df = AIS_df.loc[:, ['TugTow']]
-
-        # Recreational
-        ais_recreational_df = AIS_df.loc[:, ['Recreational']]
-
-        # Passenger
-        ais_passenger_df = AIS_df.loc[:, ['Passenger']]
-
-        # Cargo
-        ais_cargo_df = AIS_df.loc[:, ['Cargo']]
-
-        # Tanker
-        ais_tanker_df = AIS_df.loc[:, ['Tanker']]
-
-        # Other
-        ais_other_df = AIS_df.loc[:, ['Other']]
-
-        # Unavailable
-        ais_unavailable_df = AIS_df.loc[:, ['Unavailable']]
-
-        # Total
-        ais_total_df = AIS_df.loc[:, ['Total']]
-        def BoatModel(x, name):
-
-            ### Convert the DataFrame into an array, and change the type to floats for the Neural Network
-            data = x.values
-            data = data.astype('float32')
-
-            ### Normalize the data by using a scaler
-            scaler = MinMaxScaler(feature_range=(0, 1))
-            data = scaler.fit_transform(data)
-
-            ### Split our data into training and testing using slicing, and check the length
-
-            ### Determin the length of what our split will be
-            data_split = int(len(data) * 0.75)
-
-            ### Slice the data and print the results
-            train, test = data[:data_split], data[data_split:]
-
-        ### Make a function that creates both X and y values for the data
-            def create_dataset(dataset, look_back=1):
-                dataX, dataY = [], []
-                for i in range(len(dataset) - look_back - 1):
-                    a = dataset[i:(i + look_back), 0]
-                    dataX.append(a)
-                    dataY.append(dataset[i + look_back, 0])
-                return np.array(dataX), np.array(dataY)
-
-        ### Define how much time we're looking into the past,
-        ### and split our values into X=t and Y=t+1, where t is that time
-            look_back = 1
-            trainX, trainY = create_dataset(train, look_back)
-            testX, testY = create_dataset(test, look_back)
-
-            ### Reshape the data to incorperate into the LSTM
-            trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-            testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-
-            ### Create and fit the LSTM network
-            model = Sequential()
-            model.add(LSTM(4, activation='tanh', input_shape=(1, look_back)))
-            model.add(Dense(2))
-            model.add(Dense(1))
-            model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mse', 'mae', 'mape'])
-            es = [EarlyStopping(monitor='loss', patience=15)]
-            fit_model = model.fit(trainX, trainY, epochs=100, validation_split=0.3, batch_size=1, verbose=0,
-                                  callbacks=[es])
-
-            ### Make predictions
-            trainPredict = model.predict(trainX)
-            testPredict = model.predict(testX)
-
-            ### Invert the predictions to graph later
-            trainPredict = scaler.inverse_transform(trainPredict)
-            trainY = scaler.inverse_transform([trainY])
-            testPredict = scaler.inverse_transform(testPredict)
-            testY = scaler.inverse_transform([testY])
-
-            ### Shift the train predictions for plotting
-            trainPredictPlot = np.empty_like(data)
-            trainPredictPlot[:, :] = np.nan
-            trainPredictPlot[look_back:len(trainPredict) + look_back, :] = trainPredict
-
-            ### Shift the test predictions for plotting
-            testPredictPlot = np.empty_like(data)
-            testPredictPlot[:, :] = np.nan
-            testPredictPlot[len(trainPredict) + (look_back * 2) + 1:len(data) - 1, :] = testPredict
-
-            ### Create a function for future predictions
-
-            def predict(num_prediction, model):
-                prediction_list = data[-look_back:]
-
-                for _ in range(num_prediction):
-                    x = prediction_list[-look_back:]
-                    x = x.reshape((1, look_back, 1))
-                    out = model.predict(x)[0][0]
-                    prediction_list = np.append(prediction_list, out)
-                prediction_list = prediction_list[look_back - 1:]
-
-                return prediction_list
-
-            ### Predict the next 30 days of data
-            forecast = predict(30, model)
-            forecast = forecast.reshape((-1, 1))
-            forecast = scaler.inverse_transform(forecast)
-
-        ### Plot the prediction on a graph
-
-            future = len(data) + len(forecast)
-
-            futurePlot = np.zeros((future, 1))
-            futurePlot[:, :] = np.nan
-            futurePlot[-len(forecast):] = forecast
-
-        ### Create single dataframe of test/train/predict values
-
-            train_data = trainPredictPlot
-            test_data = testPredictPlot
-            predict_plot = futurePlot
-
-            train_test = pd.DataFrame(train_data.reshape(-1))
-            test_test = pd.DataFrame(test_data.reshape(-1))
-            predict_test = pd.DataFrame(predict_plot.reshape(-1))
-
-            for ind in train_test.index:
-                if train_test[0][ind] != train_test[0][ind]:
-                    train_test.iloc[ind] = test_test[0][ind]
-
-            for ind in predict_test.index:
-                if predict_test[0][ind] == predict_test[0][ind]:
-                    train_test = train_test.append(pd.DataFrame({0: [predict_test[0][ind]]}, index=[ind]))
-            train_test.reset_index(inplace=True)
-
-            if name == "Fishing":
-                aisData.LSTM_Fishing = jsonify(train_test.to_json())
-            elif name == "TugTow":
-                aisData.LSTM_TugTow = jsonify(train_test.to_json())
-            elif name == "Recreational":
-                aisData.LSTM_Recreational = jsonify(train_test.to_json())
-            elif name == "Passenger":
-                aisData.LSTM_Passenger = jsonify(train_test.to_json())
-            elif name == "Cargo":
-                aisData.LSTM_Cargo = jsonify(train_test.to_json())
-            elif name == "Tanker":
-                aisData.LSTM_Tanker = jsonify(train_test.to_json())
-            elif name == "Other":
-                aisData.LSTM_Other = jsonify(train_test.to_json())
-            elif name == "Unavailable":
-                aisData.LSTM_Unavailable = jsonify(train_test.to_json())
-            elif name == "Total":
-                aisData.LSTM_Total = jsonify(train_test.to_json())
-
-            return train_test
 ### Call LinearRegression Function
         ais_graphs()
 
-# # ### Call LSTM Functions
-        BoatModel(ais_fishing_df, "Fishing")
-        BoatModel(ais_recreational_df, "Recreational")
-        BoatModel(ais_tugtow_df, "TugTow")
-        BoatModel(ais_passenger_df, "Passenger")
-        BoatModel(ais_cargo_df, "Cargo")
-        BoatModel(ais_tanker_df, "Tanker")
-        BoatModel(ais_other_df, "Other")
-        BoatModel(ais_total_df, "Total")
-        print(aisData.LSTM_Total)
-
 ### Assign output metrics dict to the DataStore
         aisData.Metrics = jsonify(metrics)
+### Assign LEN DRAFT data to datastore
+        aisData.Len = jsonify(len_df.to_json(orient="index"))
+        aisData.draft = jsonify(dra_df.to_json(orient="index"))
 
+        print_val.print_val = 1
         return dataset
     else:
         return render_template("index.html")
 
+def ui(location):
+    qt_app = QApplication(sys.argv)
+    web = QWebEngineView()
+    web.setWindowTitle("AIS QUERY")
+    web.resize(1000, 600)
+    web.setZoomFactor(.75)
+    web.load(QUrl(location))
+    web.show()
+
+    def emit_pdf():
+        web.show()
+        if print_val.print_val == 1:
+            f_name = QFileDialog.getSaveFileName()
+            if ".pdf" not in f_name[0]:
+                f_name1 = f"{f_name[0]}.pdf"
+            else: f_name1 = f_name[0]
+            print(f_name1)
+            # printer = QPrinter(QPrinter.HighResolution)
+            #
+            # printer.setPageSize(QPrinter.Letter)
+            #
+            # printer.setOutputFormat(QPrinter.PdfFormat)
+            #
+            # printer.setOutputFileName(f_name1)
+            #
+            # printer.setFullPage(True)
+            #
+            # web.print_(printer)
+            layout = QPageLayout()
+            layout.setPageSize(QPageSize(QSizeF(8.5, 11), QPageSize.Unit.Inch, "4x6 in page", QPageSize.SizeMatchPolicy.ExactMatch))
+            layout.setOrientation(QPageLayout.Portrait)
+
+            QTimer.singleShot(1000, lambda: web.page().printToPdf(f_name1, pageLayout=layout))
+            print_val.print_val = 0
+
+    web.loadFinished.connect(emit_pdf)
+    sys.exit(qt_app.exec_())
+
 @app.route("/results")
 def result():
-    return render_template("result.html")
 
-@app.route("/time_series")
-def time_series():
-    return render_template("result1.html")
+    return render_template("result.html")
 
 @app.route("/get-data")
 def data():
@@ -424,6 +316,14 @@ def data():
 @app.route("/get-metrics")
 def metrics():
     return aisData.Metrics
+
+@app.route("/get-len")
+def Len():
+    return aisData.Len
+
+@app.route("/get-dra")
+def Dra():
+    return aisData.draft
 
 @app.route("/get-latlon")
 def location():
@@ -461,39 +361,7 @@ def ml_other():
 def ml_total():
     return aisData.Total
 
-@app.route("/get-lstm-fish")
-def lstm_fish():
-    return aisData.LSTM_Fishing
-
-@app.route("/get-lstm-tugtow")
-def lstm_tugtow():
-    return aisData.LSTM_TugTow
-
-@app.route("/get-lstm-rec")
-def lstm_rec():
-    return aisData.LSTM_Recreational
-
-@app.route("/get-lstm-pass")
-def lstm_pass():
-    return aisData.LSTM_Passenger
-
-@app.route("/get-lstm-cargo")
-def lstm_cargo():
-    return aisData.LSTM_Cargo
-
-@app.route("/get-lstm-tanker")
-def lstm_tanker():
-    return aisData.LSTM_Tanker
-
-@app.route("/get-lstm-other")
-def lstm_other():
-    return aisData.LSTM_Other
-
-@app.route("/get-lstm-total")
-def lstm_total():
-    return aisData.LSTM_Total
-
 if __name__ == '__main__':
-    # app.secret_key = 'testkey2'
-    # app.config['SESSION_TYPE'] = 'sqlalchemy'
+    # start sub-thread to open the browser.
+    Tm(1,lambda: ui("http://127.0.0.1:5000/")).start()
     app.run(debug=False)

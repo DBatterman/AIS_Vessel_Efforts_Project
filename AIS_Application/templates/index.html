@@ -18,7 +18,7 @@
     </div> -->
     <div style="background-color: rgb(133, 147, 149);">
     <div id="jumbo" class="jumbotron col-lg-12">
-        <h1 style="color:whitesmoke; text-align: left; text-shadow: -2px -2px 0 black;">San Francisco AIS Vessel Efforts</h1>
+        <h1 style="color:whitesmoke; text-align: left; text-shadow: -2px -2px 0 black;">California AIS Vessel Efforts</h1>
     </div>
     </div>
         <!-- <div class="progress" style="background-color: rgb(145, 161, 175)">
@@ -28,7 +28,7 @@
     <div class="container-fluid" style="background-color:rgb(125, 150, 150)">
         <div class="row">
             <div class="col-md-12">
-            <h3>AIS Data Breakdown<hr><small>Unique Vessels, Percentage of Overall Activity, and Trends Over Time<small><small><small><hr>**Note: Larger areas with high traffic require longer loading times.**</small></small></small></small></h3>
+            <h3>AIS Data Breakdown<hr><small>Unique Vessels, Percentage of Overall Activity, and Trends Over Time<small><small></small></small></small></h3>
             </div>
         </div>
     </div>
@@ -47,11 +47,16 @@
                         <input type="text" class="list-group" name="rightbound" id="rightbound"></input>
                         <li class="list-group">Date Resolution:</li>
                         <select type="text" class="list-group" name="resolution" id="resolution">
-                            <option value="YYYY-Q">Quarterly</option>
-                            <option value="YYYY-mm">Monthly</option>
-                            <option value="YYYY-mm-dd">Daily</option>
+                            <option value="%Y-%m">Monthly</option>
+                            <option value="%Y-%m-%d">Daily</option>
                         </select>
-                        <button type="submit">Submit</button>
+                        <li class="list-group">Waterway Name:</li>
+                        <input type="text" class="list-group" name="searchname" id="searchname"></input>
+<!--                        <li class="list-group">Output File Name:</li>-->
+<!--                        <input type="text" class="list-group" name="searchname" id="searchname" value="AIS_Query.pdf"></input>-->
+                        <button type="submit" class="button">
+                            <span class="button__text">Submit</span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -73,6 +78,8 @@
     <!-- <script src="test_list.json"></script> -->
     <script src="static/JS/config.js"></script>
     <script src="static/JS/logic.js"></script>
+    <script src="static/JS/display.js"></script>
+
     <!-- <script src="app.py"></script> -->
     <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 
@@ -89,7 +96,8 @@
               Bottom_Bound:$("#bottombound").val(),
               Left_Bound:$("#leftbound").val(),
               Right_Bound:$("#rightbound").val(),
-              Resolution:$("#resolution").val()}),
+              Resolution:$("#resolution").val(),
+              Output_Name:$("#searchname").val()}),
             contentType: 'application/json',
             type: 'post',
 
@@ -101,7 +109,8 @@
 
             },
             error:function(){
-                alert("Query Failed!")
+                alert("Query Failed!");
+                window.location = "/";
             }
             }).done(function (data) {
              console.log(data)}),
